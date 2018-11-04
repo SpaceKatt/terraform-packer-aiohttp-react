@@ -1,1 +1,1 @@
-# Terraform Packer Example using Aiohttp and React
+# Terraform Packer Example using aiohttp and React
