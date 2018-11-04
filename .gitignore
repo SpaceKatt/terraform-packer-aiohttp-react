@@ -1,0 +1,11 @@
+# Environment variables
+.env
+
+# Swap files (neovim)
+.swp
+
+# Build files
+*.pyc
+
+# Terraform state
+terraform.tfstate
