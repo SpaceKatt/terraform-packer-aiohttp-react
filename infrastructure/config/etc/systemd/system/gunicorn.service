@@ -1,0 +1,19 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target gunicorn.socket
+
+[Service]
+PIDFile=/run/gunicorn/pid
+User=ubuntu
+Group=sudo
+RuntimeDirectory=gunicorn
+#EnvironmentFile=/home/ubuntu/packer-terra-example/.env
+WorkingDirectory=/home/ubuntu/packer-terra-example
+ExecStart=/usr/bin/env gunicorn --worker-class aiohttp.GunicornUVLoopWebWorker --bind unix:/run/gunicorn/socket --error-logfile /home/packer-terra-example/log/dc.log main:APP
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

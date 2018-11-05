@@ -19,5 +19,13 @@
     "provisioners": [{
         "type": "shell",
         "script": "packer_setup.sh"
+    },{
+        "type": "file",
+        "source": "./config/etc",
+        "destination": "/"
+    },{
+        "type": "file",
+        "source": "../src",
+        "destination": "/home/ubuntu/packer-terra-example"
     }]
 }
