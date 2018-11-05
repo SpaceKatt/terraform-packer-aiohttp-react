@@ -3,6 +3,7 @@
     "variables": {
         "aws_profile": "{{ env `AWS_PROFILE` }}",
         "ssh_name": "ubuntu",
+        "ssh_key_path": "{{ env `SSH_KEY_PATH` }}",
         "aws_region": "us-west-2"
     },
     "builders": [{
@@ -12,7 +13,8 @@
         "profile": "{{ user `aws_profile` }}",
         "instance_type": "t2.micro",
         "ami_name": "terraform-packer-aiohttp-react-{{timestamp}}",
-        "ssh_username": "{{ user `ssh_name` }}"
+        "ssh_username": "{{ user `ssh_name` }}",
+        "ssh_private_key_file": "{{ user `ssh_key_path` }}"
     }],
     "provisioners": [{
         "type": "shell",

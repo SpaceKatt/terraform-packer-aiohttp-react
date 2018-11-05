@@ -10,5 +10,9 @@
 # Log files
 logs/
 
+# Any private files
+private/
+
 # Terraform state
 terraform.tfstate
+packer_build_vars.tfvars
