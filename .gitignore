@@ -7,5 +7,8 @@
 # Build files
 *.pyc
 
+# Log files
+logs/
+
 # Terraform state
 terraform.tfstate
