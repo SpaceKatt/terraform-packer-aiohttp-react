@@ -1,22 +1,22 @@
 #/usr/bin/env bash
 
 sudo apt-get update
-sudo apt-get install build-essential nginx python3 -y
+sudo apt-get install -y build-essential \
+                        nginx \
+                        python3 \
+                        python3-pip
+#yes 1 | sudo apt-get upgrade -y
 
 mkdir /etc/tmpfiles.d
 mkdir /etc/systemd/system
 
-#sudo python3 -m pip install aiodns
-#sudo python3 -m pip install aiohttp
-#sudo python3 -m pip install aiofiles
-#sudo python3 -m pip install cchardet
+python3 -m pip install aiodns
+python3 -m pip install aiohttp
+python3 -m pip install aiofiles
+python3 -m pip install cchardet
 sudo python3 -m pip install gunicorn
-#sudo python3 -m pip install uvloop
+python3 -m pip install uvloop
 
 sudo chown -R ubuntu /etc/tmpfiles.d
 sudo chown -R ubuntu /etc/systemd/system
 sudo chown -R ubuntu /etc/nginx
-
-sudo systemctl enable nginx.service
-sudo systemctl start nginx.service
-

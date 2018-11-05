@@ -47,4 +47,4 @@ APP = LOOP.run_until_complete(init_app())
 
 
 if __name__ == '__main__':
-    web.run_app(APP, host='0.0.0.0')
+    web.run_app(APP, host='0.0.0.0:8080')
