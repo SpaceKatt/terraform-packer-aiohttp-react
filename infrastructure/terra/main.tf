@@ -12,13 +12,6 @@ variable "packer-build-terra-example-ami" {}
 
 resource "aws_default_vpc" "default" {}
 
-resource "aws_instance" "terra-packer" {
-  ami                         = "${var.packer-build-terra-example-ami}"
-  instance_type               = "t2.micro"
-  security_groups             = ["${aws_security_group.terra-packer-sg.name}"]
-  associate_public_ip_address = true
-}
-
 resource "aws_security_group" "terra-packer-sg" {
   name   = "terra-packer-security-group"
   vpc_id = "${aws_default_vpc.default.id}"
@@ -43,6 +36,13 @@ resource "aws_security_group" "terra-packer-sg" {
     to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_instance" "terra-packer" {
+  ami                         = "${var.packer-build-terra-example-ami}"
+  instance_type               = "t2.micro"
+  security_groups             = ["${aws_security_group.terra-packer-sg.name}"]
+  associate_public_ip_address = true
 }
 
 output "terra-packer_public_ip" {

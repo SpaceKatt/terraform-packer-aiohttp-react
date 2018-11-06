@@ -30,6 +30,8 @@
     },{
         "type": "shell",
         "inline": [
+            "rm /etc/nginx/sites-enabled/default",
+
             "sudo systemctl enable gunicorn.socket",
             "sudo systemctl start gunicorn.socket",
 
