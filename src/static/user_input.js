@@ -56,7 +56,7 @@ class NameForm extends React.Component {
             <input type="text" value={this.state.firstName} onChange={this.handleFirstNameChange} />
           </label>
           <label>
-            last Name:
+            Last Name:
             <input type="text" value={this.state.lastName} onChange={this.handleLastNameChange} />
           </label>
            <input type="submit" value="Query" />
