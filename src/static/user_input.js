@@ -1,30 +1,67 @@
 class NameForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {
+      firstName: '',
+      lastName: ''
+    };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
+    this.handleLastNameChange = this.handleLastNameChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleLoadData = this.handleLoadData.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
+  handleFirstNameChange(event) {
+    this.setState({
+      firstName: event.target.value
+    });
+  }
+
+  handleLastNameChange(event) {
+    this.setState({
+      lastName: event.target.value
+    });
+  }
+
+  handleLoadData(event) {
+    alert('Loading data');
+    event.preventDefault();
+  }
+
+  handleClearData(event) {
+    alert('Clearing data');
+    event.preventDefault();
   }
 
   handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.value);
+    alert('A name was submitted: ' + this.state.firstName + ' ' + this.state.lastName);
     event.preventDefault();
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Name:
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
+      <div className="container">
+        <form onSubmit={this.handleLoadData}>
+          <input type="submit" value="Load Data"/>
+        </form>
+
+        <form onSubmit={this.handleClearData}>
+          <input type="submit" value="Clear Data"/>
+        </form>
+
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            First Name:
+            <input type="text" value={this.state.firstName} onChange={this.handleFirstNameChange} />
+          </label>
+          <label>
+            last Name:
+            <input type="text" value={this.state.lastName} onChange={this.handleLastNameChange} />
+          </label>
+           <input type="submit" value="Query" />
+        </form>
+      </div>
     );
   }
 }
