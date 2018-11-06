@@ -31,6 +31,27 @@ async def root_handle(req):
         return web.Response(status=500)
 
 
+@ROUTES.get('/static/{file}')
+async def static_file_handle(req):
+    '''
+    Tells the malcontent to go root themselves off our lawn.
+    '''
+    file_path = req.match_info.get('file', None)
+    try:
+        file_path = path.join(path.dirname(path.abspath(__file__)),
+                              './static/{}'.format(file_path))
+        async with aiofiles.open(file_path, mode='r') as f:
+            content = await f.read()
+            return web.Response(
+                    body=content,
+                    headers={
+                        'Content-Type': 'text/javascript'
+                    },
+            )
+    except Exception:
+        return web.Response(status=500)
+
+
 async def init_app():
     '''
     Initialize the database, then application server
