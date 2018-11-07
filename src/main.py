@@ -1,13 +1,24 @@
 '''
 Runs the webserver.
 '''
-from aiohttp import web
+# External dependencies
 import aiofiles
 import asyncio
+import boto3
 
+from aiohttp import web
+
+# built-in dependencies
+import traceback
+import io
+
+from gzip import GzipFile
+from urllib.parse import urlparse
 from os import path
 
 
+s3 = boto3.resource('s3')
+s3_client = boto3.client('s3')
 ROUTES = web.RouteTableDef()
 
 
@@ -31,7 +42,7 @@ async def root_handle(req):
         return web.Response(status=500)
 
 
-@ROUTES.get('/static/{file}')
+@ROUTES.get('/js/{file}')
 async def static_file_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
@@ -57,7 +68,29 @@ async def load_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    return web.Response(status=200, body='REEEEE')
+    url = "https://s3-us-west-2.amazonaws.com/css490/input.txt"
+    _, bucket_name, key = urlparse(url).path.split('/', 2)
+    obj = s3.Object(
+              bucket_name=bucket_name,
+              key=key
+    )
+    buffer = io.BytesIO(obj.get()["Body"].read())
+    try:
+        got_text = GzipFile(None, 'rb', fileobj=buffer).read()
+        print(got_text)
+    except OSError:
+        buffer.seek(0)
+        got_text = buffer.read()
+    except Exception:
+        traceback.print_exc()
+        return web.Response(status=500, body="ERROR")
+
+    return web.Response(status=200, body=got_text)
+
+
+def save_data_dynamo(data):
+    # TODO: Dynamo stuff
+    pass
 
 
 async def init_app():

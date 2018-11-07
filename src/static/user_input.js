@@ -71,7 +71,7 @@ class NameForm extends React.Component {
   }
 }
 
-//ReactDOM.render(<NameForm />, document.getElementById("input_container"))
 const e = React.createElement;
+
 const domContainer = document.querySelector('#input_container');
 ReactDOM.render(e(NameForm), domContainer);

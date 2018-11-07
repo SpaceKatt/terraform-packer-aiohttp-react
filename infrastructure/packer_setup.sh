@@ -9,13 +9,18 @@ sudo apt-get install -y build-essential \
 
 mkdir /etc/tmpfiles.d
 mkdir /etc/systemd/system
+mkdir /home/ubuntu/.aws
 
-python3 -m pip install aiodns
-python3 -m pip install aiohttp
-python3 -m pip install aiofiles
-python3 -m pip install cchardet
+sudo echo "AWS_PORFILE=default" >> /home/ubuntu/.env
+
 sudo python3 -m pip install gunicorn
-python3 -m pip install uvloop
+sudo python3 -m pip install aiodns
+sudo python3 -m pip install aiohttp
+sudo python3 -m pip install aiofiles
+sudo python3 -m pip install asyncpg
+sudo python3 -m pip install boto3
+sudo python3 -m pip install cchardet
+sudo python3 -m pip install uvloop
 
 sudo chown -R ubuntu /etc/tmpfiles.d
 sudo chown -R ubuntu /etc/systemd/system
