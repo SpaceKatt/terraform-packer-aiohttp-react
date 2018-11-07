@@ -17,8 +17,8 @@ from urllib.parse import urlparse
 from os import path
 
 
-s3 = boto3.resource('s3')
-dynamodb = boto3.resource('dynamodb')
+s3 = boto3.resource('s3', region_name='us-west-2')
+dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 
 s3_client = boto3.client('s3')
 dynamodb_client = boto3.client('dynamodb')
