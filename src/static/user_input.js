@@ -26,16 +26,22 @@ class NameForm extends React.Component {
   }
 
   handleLoadData(event) {
-    axios.get('/data')
-      .then(resp => {
-        console.log(resp);
-        alert(resp.data);
+    axios.post('/data')
+      .then(() => {
+        alert('Data loaded!');
+      })
+      .catch(err => {
+        alert('Error loading data!');
+        console.error(err);
       });
     event.preventDefault();
   }
 
   handleClearData(event) {
-    alert('Clearing data');
+    axios.delete('/data')
+      .then(() => {
+        alert('Data cleared!');
+      });
     event.preventDefault();
   }
 
