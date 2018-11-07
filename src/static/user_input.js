@@ -8,8 +8,9 @@ class NameForm extends React.Component {
 
     this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
     this.handleLastNameChange = this.handleLastNameChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleQuery = this.handleQuery.bind(this);
     this.handleLoadData = this.handleLoadData.bind(this);
+    this.handleClearData = this.handleClearData.bind(this);
   }
 
   handleFirstNameChange(event) {
@@ -25,7 +26,11 @@ class NameForm extends React.Component {
   }
 
   handleLoadData(event) {
-    alert('Loading data');
+    axios.get('/data')
+      .then(resp => {
+        console.log(resp);
+        alert(resp.data);
+      });
     event.preventDefault();
   }
 
@@ -34,7 +39,7 @@ class NameForm extends React.Component {
     event.preventDefault();
   }
 
-  handleSubmit(event) {
+  handleQuery(event) {
     alert('A name was submitted: ' + this.state.firstName + ' ' + this.state.lastName);
     event.preventDefault();
   }

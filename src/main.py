@@ -52,6 +52,14 @@ async def static_file_handle(req):
         return web.Response(status=500)
 
 
+@ROUTES.get('/data')
+async def load_data_handle(req):
+    '''
+    Tells the malcontent to go root themselves off our lawn.
+    '''
+    return web.Response(status=200, body='REEEEE')
+
+
 async def init_app():
     '''
     Initialize the database, then application server
