@@ -18,7 +18,11 @@ from os import path
 
 
 s3 = boto3.resource('s3')
+dynamodb = boto3.resource('dynamodb')
+
 s3_client = boto3.client('s3')
+dynamodb_client = boto3.client('dynamodb')
+
 MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
 
@@ -116,9 +120,32 @@ async def load_data_handle(req):
     return web.Response(status=200)
 
 
+def clear_data_dynamo():
+    table = dynamodb.Table('Example_Data')
+
+
 def save_data_dynamo(data):
-    # TODO: Dynamo stuff
-    pass
+    lines = data.decode('utf-8').split('\n')
+    table = dynamodb.Table('Example_Data')
+
+    for line in lines:
+        tokens = line.strip().split(' ')
+        key_vals = {}
+        key_vals['firstName'] = tokens.pop(0)
+        key_vals['lastName'] = tokens.pop(0)
+
+        for token in tokens:
+            print(token)
+            token = token.split('=')
+            if len(token) < 2:
+                continue
+
+            key = token[0]
+            value = token[1]
+
+            key_vals[key] = value
+
+        table.put_item(TableName='Example_Data', Item=key_vals)
 
 
 async def init_app():
