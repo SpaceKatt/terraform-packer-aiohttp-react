@@ -120,6 +120,11 @@ class NameForm extends React.Component {
 
   handleQuery(event) {
     event.preventDefault();
+    if (this.state.firstName == '' && this.state.lastName == '') {
+      alert('Please specify either a first name or last name!');
+      return;
+    }
+
     axios.post('/query', {
       'firstName': this.state.firstName,
       'lastName': this.state.lastName
