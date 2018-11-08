@@ -6,6 +6,7 @@ import aiofiles
 import asyncio
 import boto3
 
+from boto3.dynamodb.conditions import Key, Attr
 from aiohttp import web
 
 # built-in dependencies
@@ -69,6 +70,23 @@ async def static_file_handle(req):
         return web.Response(status=500)
 
 
+@ROUTES.post('/query')
+async def query_data_handle(req):
+    '''
+    Tells the malcontent to go root themselves off our lawn.
+    '''
+    try:
+        first = 'David'
+        last = 'Bowie'
+        data = query_data_dynamo(first, last)
+        print(data)
+    except Exception:
+        traceback.print_exc()
+        return web.Response(status=500, body="ERROR")
+
+    return web.Response(status=200, body=data)
+
+
 @ROUTES.delete('/data')
 async def clear_data_handle(req):
     '''
@@ -125,6 +143,21 @@ async def load_data_handle(req):
     save_data_dynamo(got_text)
 
     return web.Response(status=200)
+
+
+def query_data_dynamo(first_name, last_name):
+    table = dynamodb.Table(TABLE_NAME)
+    scan = table.scan(
+        FilterExpression=Key('lastName').eq(last_name)
+                       & Key('firstName').eq(first_name),
+        ProjectionExpression='#k, #s',
+        ExpressionAttributeNames={
+            '#k': 'lastName',
+            '#s': 'firstName'
+        }
+    )
+
+    print(scan)
 
 
 def clear_data_dynamo():
@@ -186,8 +219,8 @@ def save_data_dynamo(data):
     for line in lines:
         tokens = line.strip().split(' ')
         key_vals = {}
-        key_vals['firstName'] = tokens.pop(0)
         key_vals['lastName'] = tokens.pop(0)
+        key_vals['firstName'] = tokens.pop(0)
 
         for token in tokens:
             print(token)

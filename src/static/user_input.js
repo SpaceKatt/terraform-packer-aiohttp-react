@@ -46,7 +46,17 @@ class NameForm extends React.Component {
   }
 
   handleQuery(event) {
-    alert('A name was submitted: ' + this.state.firstName + ' ' + this.state.lastName);
+    axios.post('/query', {
+      'firstName': this.state.firstName,
+      'lastName': this.state.lastName
+    })
+      .then(resp => {
+        alert(resp);
+      })
+      .catch(err => {
+        alert('Error loading data!');
+        console.error(err);
+      });
     event.preventDefault();
   }
 
@@ -61,7 +71,7 @@ class NameForm extends React.Component {
           <input type="submit" value="Clear Data"/>
         </form>
 
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleQuery}>
           <label>
             First Name:
             <input type="text" value={this.state.firstName} onChange={this.handleFirstNameChange} />
