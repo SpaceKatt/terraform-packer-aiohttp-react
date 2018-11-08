@@ -1,9 +1,80 @@
+const ResultsRow = props => {
+  const createRow = () => {
+    var row = [];
+
+    for (var i = 0; i < props.attributes.length; i++) {
+      console.log(props.attributes[i]);
+      if (props.results[props.attributes[i]]) {
+        row.push(<td>{props.results[props.attributes[i]]}</td>);
+      } else {
+        row.push(<td>'None'</td>);
+      }
+    }
+
+    return row;
+  };
+
+  return (
+    <tr>
+      {createRow()}
+    </tr>
+  );
+}
+
+const ResultsTable = props => {
+
+  const createTable = () => {
+    if (!props.results) {
+        return;
+    }
+
+    console.log(props.results);
+    var table = [];
+    var attributes = [];
+    var attribute_names = [];
+    var items = [];
+
+    for (var i = 0; i < props.results.length; i++) {
+      var item = props.results[i];
+      var attr_list = Object.keys(item);
+
+      for (var j = 0; j < attr_list.length; j++) {
+        var attr_name = attr_list[j];
+        var attr = item[attr_name];
+
+        if (!attributes.includes(attr)) {
+          attributes.push(<th>{attr_name}</th>);
+          attribute_names.push(attr_name);
+        }
+      }
+    }
+
+    table.push(<thead><tr>{attributes}</tr></thead>);
+
+    for (var i = 0; i < props.results.length; i++) {
+      items.push(<ResultsRow attributes={attribute_names}
+                             results={props.results[i]}/>);
+    }
+
+    table.push(<tbody>{items}</tbody>);
+
+    return table;
+  }
+
+  return (
+    <table>
+        {createTable()}
+    </table>
+  );
+}
+
 class NameForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       firstName: '',
-      lastName: ''
+      lastName: '',
+      queryResults: {}
     };
 
     this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
@@ -46,18 +117,20 @@ class NameForm extends React.Component {
   }
 
   handleQuery(event) {
+    event.preventDefault();
     axios.post('/query', {
       'firstName': this.state.firstName,
       'lastName': this.state.lastName
     })
       .then(resp => {
-        alert(resp);
+        this.setState({
+          queryResults: resp.data.Items
+        })
+        alert(resp.data);
       })
       .catch(err => {
-        alert('Error loading data!');
-        console.error(err);
+        alert('Query has no results! Remember, you need an EXACT match!');
       });
-    event.preventDefault();
   }
 
   render() {
@@ -82,6 +155,8 @@ class NameForm extends React.Component {
           </label>
            <input type="submit" value="Query" />
         </form>
+        
+        <ResultsTable results={this.state.queryResults} />
       </div>
     );
   }

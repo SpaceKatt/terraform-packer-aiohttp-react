@@ -5,6 +5,7 @@ Runs the webserver.
 import aiofiles
 import asyncio
 import boto3
+import json
 
 from boto3.dynamodb.conditions import Key, Attr
 from aiohttp import web
@@ -79,12 +80,14 @@ async def query_data_handle(req):
         first = 'David'
         last = 'Bowie'
         data = query_data_dynamo(first, last)
-        print(data)
     except Exception:
         traceback.print_exc()
         return web.Response(status=500, body="ERROR")
 
-    return web.Response(status=200, body=data)
+    if data:
+        return web.Response(status=200, body=json.dumps({'Items': data}))
+    else:
+        return web.Response(status=404)
 
 
 @ROUTES.delete('/data')
@@ -132,7 +135,6 @@ async def load_data_handle(req):
     buffer = io.BytesIO(obj.get()["Body"].read())
     try:
         got_text = GzipFile(None, 'rb', fileobj=buffer).read()
-        print(got_text)
     except OSError:
         buffer.seek(0)
         got_text = buffer.read()
@@ -157,7 +159,10 @@ def query_data_dynamo(first_name, last_name):
         }
     )
 
-    print(scan)
+    if scan['Count']:
+        return scan['Items']
+    else:
+        return None
 
 
 def clear_data_dynamo():
@@ -172,14 +177,13 @@ def clear_data_dynamo():
 
     with table.batch_writer() as batch:
         for each in scan['Items']:
-            print(each)
             batch.delete_item(Key=each)
 
 
 def create_table(table_name):
     waiter = dynamodb_client.get_waiter('table_not_exists')
     waiter.wait(TableName=table_name)
-    print('creating table')
+    print('>>> Creating table in dynamodb')
     table = dynamodb.create_table(
         TableName=table_name,
         KeySchema=[
@@ -223,7 +227,6 @@ def save_data_dynamo(data):
         key_vals['firstName'] = tokens.pop(0)
 
         for token in tokens:
-            print(token)
             token = token.split('=')
             if len(token) < 2:
                 continue
