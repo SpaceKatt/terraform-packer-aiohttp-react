@@ -76,9 +76,16 @@ async def query_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
+    data = await req.json()
+    first = None
+    last = None
+    print(data)
     try:
-        first = 'David'
-        last = 'Bowie'
+        if 'firstName' in data:
+            first = data['firstName']
+        if 'lastName' in data:
+            last = data['lastName']
+        print('{} {}'.format(first, last))
         data = query_data_dynamo(first, last)
     except Exception:
         traceback.print_exc()
@@ -88,6 +95,30 @@ async def query_data_handle(req):
         return web.Response(status=200, body=json.dumps({'Items': data}))
     else:
         return web.Response(status=404)
+
+
+def query_data_dynamo(first_name, last_name):
+    table = dynamodb.Table(TABLE_NAME)
+    if first_name and last_name:
+        scan = table.scan(
+            FilterExpression=Key('lastName').eq(last_name)
+                           & Key('firstName').eq(first_name),
+        )
+    elif first_name:
+        scan = table.scan(
+            FilterExpression=Key('firstName').eq(first_name)
+        )
+    elif last_name:
+        scan = table.scan(
+            FilterExpression=Key('lastName').eq(last_name)
+        )
+    else:
+        return None
+
+    if scan['Count']:
+        return scan['Items']
+    else:
+        return None
 
 
 @ROUTES.delete('/data')
@@ -145,24 +176,6 @@ async def load_data_handle(req):
     save_data_dynamo(got_text)
 
     return web.Response(status=200)
-
-
-def query_data_dynamo(first_name, last_name):
-    table = dynamodb.Table(TABLE_NAME)
-    scan = table.scan(
-        FilterExpression=Key('lastName').eq(last_name)
-                       & Key('firstName').eq(first_name),
-        # ProjectionExpression='#k, #s',
-        # ExpressionAttributeNames={
-            # '#k': 'lastName',
-            # '#s': 'firstName'
-        # }
-    )
-
-    if scan['Count']:
-        return scan['Items']
-    else:
-        return None
 
 
 def clear_data_dynamo():
