@@ -25,6 +25,7 @@ dynamodb_client = boto3.client('dynamodb')
 
 MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
+TABLE_NAME = 'Example_Data'
 
 
 @ROUTES.get('/')
@@ -81,6 +82,7 @@ async def clear_data_handle(req):
                     'Key': 'input.txt'
                 }]
             })
+        clear_data_dynamo()
     except Exception:
         traceback.print_exc()
         return web.Response(status=500, body="ERROR")
@@ -103,7 +105,12 @@ async def load_data_handle(req):
     # TODO: Don't hardcode this
     MY_BUCK = s3.Bucket('example-zzz-data-stoar')
     MY_BUCK.upload_fileobj(obj.get()["Body"], Key='input.txt')
+    existing_tables = dynamodb_client.list_tables()['TableNames']
+    if TABLE_NAME not in existing_tables:
+        create_table(TABLE_NAME)
 
+    waiter = dynamodb_client.get_waiter('table_exists')
+    waiter.wait(TableName=TABLE_NAME)
     buffer = io.BytesIO(obj.get()["Body"].read())
     try:
         got_text = GzipFile(None, 'rb', fileobj=buffer).read()
@@ -121,12 +128,60 @@ async def load_data_handle(req):
 
 
 def clear_data_dynamo():
-    table = dynamodb.Table('Example_Data')
+    table = dynamodb.Table(TABLE_NAME)
+    scan = table.scan(
+        ProjectionExpression='#k, #s',
+        ExpressionAttributeNames={
+            '#k': 'lastName',
+            '#s': 'firstName'
+        }
+    )
+
+    with table.batch_writer() as batch:
+        for each in scan['Items']:
+            print(each)
+            batch.delete_item(Key=each)
+
+
+def create_table(table_name):
+    waiter = dynamodb_client.get_waiter('table_not_exists')
+    waiter.wait(TableName=table_name)
+    print('creating table')
+    table = dynamodb.create_table(
+        TableName=table_name,
+        KeySchema=[
+            {
+                'AttributeName': 'lastName',
+                'KeyType': 'HASH'
+            }, {
+                'AttributeName': 'firstName',
+                'KeyType': 'RANGE'
+            }
+        ],
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'lastName',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'firstName',
+                'AttributeType': 'S'
+            },
+
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 5,
+            'WriteCapacityUnits': 5
+        },
+        StreamSpecification={
+            'StreamEnabled': False
+        }
+    )
 
 
 def save_data_dynamo(data):
     lines = data.decode('utf-8').split('\n')
-    table = dynamodb.Table('Example_Data')
+    table = dynamodb.Table(TABLE_NAME)
 
     for line in lines:
         tokens = line.strip().split(' ')
