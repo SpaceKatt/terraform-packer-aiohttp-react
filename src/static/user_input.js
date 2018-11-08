@@ -22,16 +22,11 @@ const ResultsRow = props => {
 }
 
 const ResultsTable = props => {
-
   const createTable = () => {
-    if (!props.results) {
-        return;
-    }
 
-    console.log(props.results);
     var table = [];
     var attributes = [];
-    var attribute_names = [];
+    var attribute_names = ['id', 'lastName', 'firstName'];
     var items = [];
 
     for (var i = 0; i < props.results.length; i++) {
@@ -42,11 +37,14 @@ const ResultsTable = props => {
         var attr_name = attr_list[j];
         var attr = item[attr_name];
 
-        if (!attributes.includes(attr)) {
-          attributes.push(<th>{attr_name}</th>);
+        if (!attribute_names.includes(attr_name)) {
           attribute_names.push(attr_name);
         }
       }
+    }
+
+    for (var i = 0; i < attribute_names.length; i++) {
+      attributes.push(<th>{attribute_names[i]}</th>);
     }
 
     table.push(<thead><tr>{attributes}</tr></thead>);
@@ -59,6 +57,10 @@ const ResultsTable = props => {
     table.push(<tbody>{items}</tbody>);
 
     return table;
+  }
+
+  if (!props.results || Object.getOwnPropertyNames(props.results).length < 1) {
+    return null;
   }
 
   return (

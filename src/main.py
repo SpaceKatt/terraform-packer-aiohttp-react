@@ -152,11 +152,11 @@ def query_data_dynamo(first_name, last_name):
     scan = table.scan(
         FilterExpression=Key('lastName').eq(last_name)
                        & Key('firstName').eq(first_name),
-        ProjectionExpression='#k, #s',
-        ExpressionAttributeNames={
-            '#k': 'lastName',
-            '#s': 'firstName'
-        }
+        # ProjectionExpression='#k, #s',
+        # ExpressionAttributeNames={
+            # '#k': 'lastName',
+            # '#s': 'firstName'
+        # }
     )
 
     if scan['Count']:
