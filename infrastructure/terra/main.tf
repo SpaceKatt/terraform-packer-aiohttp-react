@@ -78,21 +78,12 @@ resource "aws_default_subnet" "default_az1" {
   availability_zone = "us-west-2a"
 }
 
-resource "aws_default_subnet" "default_az2" {
-  availability_zone = "us-west-2b"
-}
-
-resource "aws_default_subnet" "default_az3" {
-  availability_zone = "us-west-2c"
-}
-
 resource "aws_autoscaling_group" "terra-packer-scaler" {
   name              = "terra-scaling"
   max_size          = 5
   min_size          = 2
 
   vpc_zone_identifier = ["${aws_default_subnet.default_az1.id}"]
-
 
   launch_template = {
     name = "${aws_launch_template.terra-packer.name}"
