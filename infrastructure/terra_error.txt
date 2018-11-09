@@ -1,0 +1,366 @@
+08:27:10:spacekatt@spacekatt-Latitude-E6540:~/projects/terraform-packer-aiohttp-react/infrastructure$ ./terra_apply.sh 
+Terraform Apply
+data.aws_availability_zones.available: Refreshing state...
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  + aws_autoscaling_group.terra-packer-scaler
+      id:                                               <computed>
+      arn:                                              <computed>
+      availability_zones.#:                             "3"
+      availability_zones.2050015877:                    "us-west-2c"
+      availability_zones.221770259:                     "us-west-2b"
+      availability_zones.2487133097:                    "us-west-2a"
+      default_cooldown:                                 <computed>
+      desired_capacity:                                 <computed>
+      force_delete:                                     "false"
+      health_check_grace_period:                        "300"
+      health_check_type:                                "ELB"
+      launch_template.#:                                "1"
+      launch_template.0.id:                             <computed>
+      launch_template.0.name:                           "${aws_launch_template.terra-packer.name}"
+      load_balancers.#:                                 "1"
+      load_balancers.1018315114:                        "terra-elb"
+      max_size:                                         "5"
+      metrics_granularity:                              "1Minute"
+      min_size:                                         "2"
+      name:                                             "terra-scaling"
+      protect_from_scale_in:                            "false"
+      service_linked_role_arn:                          <computed>
+      tag.#:                                            "1"
+      tag.3794832428.key:                               "Name"
+      tag.3794832428.propagate_at_launch:               "true"
+      tag.3794832428.value:                             "terraform-asg"
+      target_group_arns.#:                              <computed>
+      vpc_zone_identifier.#:                            <computed>
+      wait_for_capacity_timeout:                        "10m"
+
+  + aws_default_vpc.default
+      id:                                               <computed>
+      arn:                                              <computed>
+      assign_generated_ipv6_cidr_block:                 <computed>
+      cidr_block:                                       <computed>
+      default_network_acl_id:                           <computed>
+      default_route_table_id:                           <computed>
+      default_security_group_id:                        <computed>
+      dhcp_options_id:                                  <computed>
+      enable_classiclink:                               <computed>
+      enable_classiclink_dns_support:                   <computed>
+      enable_dns_hostnames:                             <computed>
+      enable_dns_support:                               "true"
+      instance_tenancy:                                 <computed>
+      ipv6_association_id:                              <computed>
+      ipv6_cidr_block:                                  <computed>
+      main_route_table_id:                              <computed>
+
+  + aws_elb.terra-elb
+      id:                                               <computed>
+      arn:                                              <computed>
+      availability_zones.#:                             "3"
+      availability_zones.2050015877:                    "us-west-2c"
+      availability_zones.221770259:                     "us-west-2b"
+      availability_zones.2487133097:                    "us-west-2a"
+      connection_draining:                              "false"
+      connection_draining_timeout:                      "300"
+      cross_zone_load_balancing:                        "true"
+      dns_name:                                         <computed>
+      health_check.#:                                   "1"
+      health_check.0.healthy_threshold:                 "2"
+      health_check.0.interval:                          "30"
+      health_check.0.target:                            "HTTP:80/"
+      health_check.0.timeout:                           "3"
+      health_check.0.unhealthy_threshold:               "2"
+      idle_timeout:                                     "60"
+      instances.#:                                      <computed>
+      internal:                                         <computed>
+      listener.#:                                       "1"
+      listener.3057123346.instance_port:                "80"
+      listener.3057123346.instance_protocol:            "http"
+      listener.3057123346.lb_port:                      "80"
+      listener.3057123346.lb_protocol:                  "http"
+      listener.3057123346.ssl_certificate_id:           ""
+      name:                                             "terra-elb"
+      security_groups.#:                                <computed>
+      source_security_group:                            <computed>
+      source_security_group_id:                         <computed>
+      subnets.#:                                        <computed>
+      zone_id:                                          <computed>
+
+  + aws_key_pair.terraform-packer-auto
+      id:                                               <computed>
+      fingerprint:                                      <computed>
+      key_name:                                         "terraform-packer-auto"
+      public_key:                                       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCaMdOqia2P+TLSyCGomFm4c/ehHD6gSSCRbP4B5ssZeAKhGkdPLA8R00Cz7/cNNZCRpreNiWUgAh94HAv4fNGWHhxnsYeV3bMRCJboaRd8NcJtvGRnKl5WJ3XIkeRcg+DVS3TyFmvx6jIqvmxb9V4ALFbtcjlYZChfuQKUVXTa/LPIOK7girFxNdwkum3GXH7xlmQFc4q4rkJpqOlVBAklZP9WdbQN7QN5QAXdOoUAi1k15X5qo+OD51ZMI6FPM+ieUjVKfVKwFQ6IRyUvNHdujscDDomIOEdXJk8HLWnPRNvVXP+RM2iWV2rWyhssP/bfx8Ju9gSzTaDPkOvi4Pph"
+
+  + aws_launch_template.terra-packer
+      id:                                               <computed>
+      arn:                                              <computed>
+      default_version:                                  <computed>
+      image_id:                                         "ami-03a440358af0b3d6e"
+      instance_type:                                    "t2.micro"
+      key_name:                                         "terraform-packer-auto"
+      latest_version:                                   "0"
+      name:                                             <computed>
+      network_interfaces.#:                             "1"
+      network_interfaces.0.associate_public_ip_address: "true"
+      vpc_security_group_ids.#:                         <computed>
+
+  + aws_security_group.terra-packer-sg
+      id:                                               <computed>
+      arn:                                              <computed>
+      description:                                      "Managed by Terraform"
+      egress.#:                                         "2"
+      egress.2214680975.cidr_blocks.#:                  "1"
+      egress.2214680975.cidr_blocks.0:                  "0.0.0.0/0"
+      egress.2214680975.description:                    ""
+      egress.2214680975.from_port:                      "80"
+      egress.2214680975.ipv6_cidr_blocks.#:             "0"
+      egress.2214680975.prefix_list_ids.#:              "0"
+      egress.2214680975.protocol:                       "tcp"
+      egress.2214680975.security_groups.#:              "0"
+      egress.2214680975.self:                           "false"
+      egress.2214680975.to_port:                        "80"
+      egress.2617001939.cidr_blocks.#:                  "1"
+      egress.2617001939.cidr_blocks.0:                  "0.0.0.0/0"
+      egress.2617001939.description:                    ""
+      egress.2617001939.from_port:                      "443"
+      egress.2617001939.ipv6_cidr_blocks.#:             "0"
+      egress.2617001939.prefix_list_ids.#:              "0"
+      egress.2617001939.protocol:                       "tcp"
+      egress.2617001939.security_groups.#:              "0"
+      egress.2617001939.self:                           "false"
+      egress.2617001939.to_port:                        "443"
+      ingress.#:                                        "3"
+      ingress.2214680975.cidr_blocks.#:                 "1"
+      ingress.2214680975.cidr_blocks.0:                 "0.0.0.0/0"
+      ingress.2214680975.description:                   ""
+      ingress.2214680975.from_port:                     "80"
+      ingress.2214680975.ipv6_cidr_blocks.#:            "0"
+      ingress.2214680975.prefix_list_ids.#:             "0"
+      ingress.2214680975.protocol:                      "tcp"
+      ingress.2214680975.security_groups.#:             "0"
+      ingress.2214680975.self:                          "false"
+      ingress.2214680975.to_port:                       "80"
+      ingress.2541437006.cidr_blocks.#:                 "1"
+      ingress.2541437006.cidr_blocks.0:                 "0.0.0.0/0"
+      ingress.2541437006.description:                   ""
+      ingress.2541437006.from_port:                     "22"
+      ingress.2541437006.ipv6_cidr_blocks.#:            "0"
+      ingress.2541437006.prefix_list_ids.#:             "0"
+      ingress.2541437006.protocol:                      "tcp"
+      ingress.2541437006.security_groups.#:             "0"
+      ingress.2541437006.self:                          "false"
+      ingress.2541437006.to_port:                       "22"
+      ingress.2617001939.cidr_blocks.#:                 "1"
+      ingress.2617001939.cidr_blocks.0:                 "0.0.0.0/0"
+      ingress.2617001939.description:                   ""
+      ingress.2617001939.from_port:                     "443"
+      ingress.2617001939.ipv6_cidr_blocks.#:            "0"
+      ingress.2617001939.prefix_list_ids.#:             "0"
+      ingress.2617001939.protocol:                      "tcp"
+      ingress.2617001939.security_groups.#:             "0"
+      ingress.2617001939.self:                          "false"
+      ingress.2617001939.to_port:                       "443"
+      name:                                             "terra-packer-security-group"
+      owner_id:                                         <computed>
+      revoke_rules_on_delete:                           "false"
+      vpc_id:                                           "${aws_default_vpc.default.id}"
+
+  + aws_vpc.main
+      id:                                               <computed>
+      arn:                                              <computed>
+      assign_generated_ipv6_cidr_block:                 "false"
+      cidr_block:                                       "10.0.0.0/16"
+      default_network_acl_id:                           <computed>
+      default_route_table_id:                           <computed>
+      default_security_group_id:                        <computed>
+      dhcp_options_id:                                  <computed>
+      enable_classiclink:                               <computed>
+      enable_classiclink_dns_support:                   <computed>
+      enable_dns_hostnames:                             <computed>
+      enable_dns_support:                               "true"
+      instance_tenancy:                                 "default"
+      ipv6_association_id:                              <computed>
+      ipv6_cidr_block:                                  <computed>
+      main_route_table_id:                              <computed>
+
+
+Plan: 7 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+aws_key_pair.terraform-packer-auto: Creating...
+  fingerprint: "" => "<computed>"
+  key_name:    "" => "terraform-packer-auto"
+  public_key:  "" => "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCaMdOqia2P+TLSyCGomFm4c/ehHD6gSSCRbP4B5ssZeAKhGkdPLA8R00Cz7/cNNZCRpreNiWUgAh94HAv4fNGWHhxnsYeV3bMRCJboaRd8NcJtvGRnKl5WJ3XIkeRcg+DVS3TyFmvx6jIqvmxb9V4ALFbtcjlYZChfuQKUVXTa/LPIOK7girFxNdwkum3GXH7xlmQFc4q4rkJpqOlVBAklZP9WdbQN7QN5QAXdOoUAi1k15X5qo+OD51ZMI6FPM+ieUjVKfVKwFQ6IRyUvNHdujscDDomIOEdXJk8HLWnPRNvVXP+RM2iWV2rWyhssP/bfx8Ju9gSzTaDPkOvi4Pph"
+aws_default_vpc.default: Creating...
+  arn:                              "" => "<computed>"
+  assign_generated_ipv6_cidr_block: "" => "<computed>"
+  cidr_block:                       "" => "<computed>"
+  default_network_acl_id:           "" => "<computed>"
+  default_route_table_id:           "" => "<computed>"
+  default_security_group_id:        "" => "<computed>"
+  dhcp_options_id:                  "" => "<computed>"
+  enable_classiclink:               "" => "<computed>"
+  enable_classiclink_dns_support:   "" => "<computed>"
+  enable_dns_hostnames:             "" => "<computed>"
+  enable_dns_support:               "" => "true"
+  instance_tenancy:                 "" => "<computed>"
+  ipv6_association_id:              "" => "<computed>"
+  ipv6_cidr_block:                  "" => "<computed>"
+  main_route_table_id:              "" => "<computed>"
+aws_vpc.main: Creating...
+  arn:                              "" => "<computed>"
+  assign_generated_ipv6_cidr_block: "" => "false"
+  cidr_block:                       "" => "10.0.0.0/16"
+  default_network_acl_id:           "" => "<computed>"
+  default_route_table_id:           "" => "<computed>"
+  default_security_group_id:        "" => "<computed>"
+  dhcp_options_id:                  "" => "<computed>"
+  enable_classiclink:               "" => "<computed>"
+  enable_classiclink_dns_support:   "" => "<computed>"
+  enable_dns_hostnames:             "" => "<computed>"
+  enable_dns_support:               "" => "true"
+  instance_tenancy:                 "" => "default"
+  ipv6_association_id:              "" => "<computed>"
+  ipv6_cidr_block:                  "" => "<computed>"
+  main_route_table_id:              "" => "<computed>"
+aws_key_pair.terraform-packer-auto: Creation complete after 0s (ID: terraform-packer-auto)
+aws_default_vpc.default: Creation complete after 2s (ID: vpc-3ff70946)
+aws_security_group.terra-packer-sg: Creating...
+  arn:                                   "" => "<computed>"
+  description:                           "" => "Managed by Terraform"
+  egress.#:                              "" => "2"
+  egress.2214680975.cidr_blocks.#:       "" => "1"
+  egress.2214680975.cidr_blocks.0:       "" => "0.0.0.0/0"
+  egress.2214680975.description:         "" => ""
+  egress.2214680975.from_port:           "" => "80"
+  egress.2214680975.ipv6_cidr_blocks.#:  "" => "0"
+  egress.2214680975.prefix_list_ids.#:   "" => "0"
+  egress.2214680975.protocol:            "" => "tcp"
+  egress.2214680975.security_groups.#:   "" => "0"
+  egress.2214680975.self:                "" => "false"
+  egress.2214680975.to_port:             "" => "80"
+  egress.2617001939.cidr_blocks.#:       "" => "1"
+  egress.2617001939.cidr_blocks.0:       "" => "0.0.0.0/0"
+  egress.2617001939.description:         "" => ""
+  egress.2617001939.from_port:           "" => "443"
+  egress.2617001939.ipv6_cidr_blocks.#:  "" => "0"
+  egress.2617001939.prefix_list_ids.#:   "" => "0"
+  egress.2617001939.protocol:            "" => "tcp"
+  egress.2617001939.security_groups.#:   "" => "0"
+  egress.2617001939.self:                "" => "false"
+  egress.2617001939.to_port:             "" => "443"
+  ingress.#:                             "" => "3"
+  ingress.2214680975.cidr_blocks.#:      "" => "1"
+  ingress.2214680975.cidr_blocks.0:      "" => "0.0.0.0/0"
+  ingress.2214680975.description:        "" => ""
+  ingress.2214680975.from_port:          "" => "80"
+  ingress.2214680975.ipv6_cidr_blocks.#: "" => "0"
+  ingress.2214680975.prefix_list_ids.#:  "" => "0"
+  ingress.2214680975.protocol:           "" => "tcp"
+  ingress.2214680975.security_groups.#:  "" => "0"
+  ingress.2214680975.self:               "" => "false"
+  ingress.2214680975.to_port:            "" => "80"
+  ingress.2541437006.cidr_blocks.#:      "" => "1"
+  ingress.2541437006.cidr_blocks.0:      "" => "0.0.0.0/0"
+  ingress.2541437006.description:        "" => ""
+  ingress.2541437006.from_port:          "" => "22"
+  ingress.2541437006.ipv6_cidr_blocks.#: "" => "0"
+  ingress.2541437006.prefix_list_ids.#:  "" => "0"
+  ingress.2541437006.protocol:           "" => "tcp"
+  ingress.2541437006.security_groups.#:  "" => "0"
+  ingress.2541437006.self:               "" => "false"
+  ingress.2541437006.to_port:            "" => "22"
+  ingress.2617001939.cidr_blocks.#:      "" => "1"
+  ingress.2617001939.cidr_blocks.0:      "" => "0.0.0.0/0"
+  ingress.2617001939.description:        "" => ""
+  ingress.2617001939.from_port:          "" => "443"
+  ingress.2617001939.ipv6_cidr_blocks.#: "" => "0"
+  ingress.2617001939.prefix_list_ids.#:  "" => "0"
+  ingress.2617001939.protocol:           "" => "tcp"
+  ingress.2617001939.security_groups.#:  "" => "0"
+  ingress.2617001939.self:               "" => "false"
+  ingress.2617001939.to_port:            "" => "443"
+  name:                                  "" => "terra-packer-security-group"
+  owner_id:                              "" => "<computed>"
+  revoke_rules_on_delete:                "" => "false"
+  vpc_id:                                "" => "vpc-3ff70946"
+aws_vpc.main: Creation complete after 2s (ID: vpc-095eed7317a64ddc7)
+aws_security_group.terra-packer-sg: Creation complete after 2s (ID: sg-0eb2debce65d01f47)
+aws_elb.terra-elb: Creating...
+  arn:                                    "" => "<computed>"
+  availability_zones.#:                   "" => "3"
+  availability_zones.2050015877:          "" => "us-west-2c"
+  availability_zones.221770259:           "" => "us-west-2b"
+  availability_zones.2487133097:          "" => "us-west-2a"
+  connection_draining:                    "" => "false"
+  connection_draining_timeout:            "" => "300"
+  cross_zone_load_balancing:              "" => "true"
+  dns_name:                               "" => "<computed>"
+  health_check.#:                         "" => "1"
+  health_check.0.healthy_threshold:       "" => "2"
+  health_check.0.interval:                "" => "30"
+  health_check.0.target:                  "" => "HTTP:80/"
+  health_check.0.timeout:                 "" => "3"
+  health_check.0.unhealthy_threshold:     "" => "2"
+  idle_timeout:                           "" => "60"
+  instances.#:                            "" => "<computed>"
+  internal:                               "" => "<computed>"
+  listener.#:                             "" => "1"
+  listener.3057123346.instance_port:      "" => "80"
+  listener.3057123346.instance_protocol:  "" => "http"
+  listener.3057123346.lb_port:            "" => "80"
+  listener.3057123346.lb_protocol:        "" => "http"
+  listener.3057123346.ssl_certificate_id: "" => ""
+  name:                                   "" => "terra-elb"
+  security_groups.#:                      "" => "1"
+  security_groups.3972776052:             "" => "sg-0eb2debce65d01f47"
+  source_security_group:                  "" => "<computed>"
+  source_security_group_id:               "" => "<computed>"
+  subnets.#:                              "" => "<computed>"
+  zone_id:                                "" => "<computed>"
+aws_launch_template.terra-packer: Creating...
+  arn:                                              "" => "<computed>"
+  default_version:                                  "" => "<computed>"
+  image_id:                                         "" => "ami-03a440358af0b3d6e"
+  instance_type:                                    "" => "t2.micro"
+  key_name:                                         "" => "terraform-packer-auto"
+  latest_version:                                   "" => "<computed>"
+  name:                                             "" => "<computed>"
+  network_interfaces.#:                             "" => "1"
+  network_interfaces.0.associate_public_ip_address: "" => "true"
+  vpc_security_group_ids.#:                         "" => "1"
+  vpc_security_group_ids.881686604:                 "" => "sg-0eb2debce65d01f47"
+aws_launch_template.terra-packer: Creation complete after 1s (ID: lt-0b6cfa4d58f4d8514)
+aws_elb.terra-elb: Creation complete after 4s (ID: terra-elb)
+
+Error: Error applying plan:
+
+1 error(s) occurred:
+
+* aws_autoscaling_group.terra-packer-scaler: aws_autoscaling_group.terra-packer-scaler: diffs didn't match during apply. This is a bug with Terraform and should be reported as a GitHub Issue.
+
+Please include the following information in your report:
+
+    Terraform Version: 0.11.10
+    Resource ID: aws_autoscaling_group.terra-packer-scaler
+    Mismatch reason: attribute mismatch: availability_zones.2050015877
+    Diff One (usually from plan): *terraform.InstanceDiff{mu:sync.Mutex{state:0, sema:0x0}, Attributes:map[string]*terraform.ResourceAttrDiff{"tag.3794832428.propagate_at_launch":*terraform.ResourceAttrDiff{Old:"", New:"true", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "availability_zones.2487133097":*terraform.ResourceAttrDiff{Old:"", New:"us-west-2a", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "default_cooldown":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "vpc_zone_identifier.#":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "load_balancers.1018315114":*terraform.ResourceAttrDiff{Old:"", New:"terra-elb", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "protect_from_scale_in":*terraform.ResourceAttrDiff{Old:"", New:"false", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "wait_for_capacity_timeout":*terraform.ResourceAttrDiff{Old:"", New:"10m", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "force_delete":*terraform.ResourceAttrDiff{Old:"", New:"false", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "service_linked_role_arn":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "load_balancers.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "arn":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "desired_capacity":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "name":*terraform.ResourceAttrDiff{Old:"", New:"terra-scaling", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:true, Sensitive:false, Type:0x0}, "target_group_arns.#":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.0.id":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "health_check_type":*terraform.ResourceAttrDiff{Old:"", New:"ELB", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "health_check_grace_period":*terraform.ResourceAttrDiff{Old:"", New:"300", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.3794832428.key":*terraform.ResourceAttrDiff{Old:"", New:"Name", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "availability_zones.2050015877":*terraform.ResourceAttrDiff{Old:"", New:"us-west-2c", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "max_size":*terraform.ResourceAttrDiff{Old:"", New:"5", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.3794832428.value":*terraform.ResourceAttrDiff{Old:"", New:"terraform-asg", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "metrics_granularity":*terraform.ResourceAttrDiff{Old:"", New:"1Minute", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.0.name":*terraform.ResourceAttrDiff{Old:"", New:"${aws_launch_template.terra-packer.name}", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "min_size":*terraform.ResourceAttrDiff{Old:"", New:"2", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "availability_zones.221770259":*terraform.ResourceAttrDiff{Old:"", New:"us-west-2b", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "availability_zones.#":*terraform.ResourceAttrDiff{Old:"", New:"3", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}}, Destroy:false, DestroyDeposed:false, DestroyTainted:false, Meta:map[string]interface {}(nil)}
+    Diff Two (usually from apply): *terraform.InstanceDiff{mu:sync.Mutex{state:0, sema:0x0}, Attributes:map[string]*terraform.ResourceAttrDiff{"max_size":*terraform.ResourceAttrDiff{Old:"", New:"5", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "health_check_type":*terraform.ResourceAttrDiff{Old:"", New:"ELB", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "wait_for_capacity_timeout":*terraform.ResourceAttrDiff{Old:"", New:"10m", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "load_balancers.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.0.name":*terraform.ResourceAttrDiff{Old:"", New:"terraform-20181109042726213900000001", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "vpc_zone_identifier.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "service_linked_role_arn":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.3794832428.value":*terraform.ResourceAttrDiff{Old:"", New:"terraform-asg", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "launch_template.0.id":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "load_balancers.1018315114":*terraform.ResourceAttrDiff{Old:"", New:"terra-elb", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "health_check_grace_period":*terraform.ResourceAttrDiff{Old:"", New:"300", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "default_cooldown":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.3794832428.propagate_at_launch":*terraform.ResourceAttrDiff{Old:"", New:"true", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "arn":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "force_delete":*terraform.ResourceAttrDiff{Old:"", New:"false", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.3794832428.key":*terraform.ResourceAttrDiff{Old:"", New:"Name", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "min_size":*terraform.ResourceAttrDiff{Old:"", New:"2", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "desired_capacity":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "tag.#":*terraform.ResourceAttrDiff{Old:"", New:"1", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "target_group_arns.#":*terraform.ResourceAttrDiff{Old:"", New:"", NewComputed:true, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "name":*terraform.ResourceAttrDiff{Old:"", New:"terra-scaling", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:true, Sensitive:false, Type:0x0}, "metrics_granularity":*terraform.ResourceAttrDiff{Old:"", New:"1Minute", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "vpc_zone_identifier.2116378709":*terraform.ResourceAttrDiff{Old:"", New:"vpc-095eed7317a64ddc7", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}, "protect_from_scale_in":*terraform.ResourceAttrDiff{Old:"", New:"false", NewComputed:false, NewRemoved:false, NewExtra:interface {}(nil), RequiresNew:false, Sensitive:false, Type:0x0}}, Destroy:false, DestroyDeposed:false, DestroyTainted:false, Meta:map[string]interface {}(nil)}
+
+Also include as much context as you can about your config, state, and the steps you performed to trigger this error.
+
+
+Terraform does not automatically rollback in the face of errors.
+Instead, your Terraform state file has been partially updated with
+any resources that successfully completed. Please address the error
+above and apply again to incrementally change your infrastructure.

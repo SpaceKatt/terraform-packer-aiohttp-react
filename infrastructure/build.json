@@ -28,6 +28,14 @@
         "source": "../src",
         "destination": "/home/ubuntu/packer-terra-example"
     },{
+        "type": "file",
+        "source": "terra/private/credentials",
+        "destination": "/home/ubuntu/.aws/credentials"
+    },{
+        "type": "file",
+        "source": "terra/private/config",
+        "destination": "/home/ubuntu/.aws/config"
+    },{
         "type": "shell",
         "inline": [
             "rm /etc/nginx/sites-enabled/default",

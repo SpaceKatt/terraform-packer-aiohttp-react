@@ -57,11 +57,10 @@ resource "aws_security_group" "terra-packer-sg" {
   }
 }
 
-resource "aws_instance" "terra-packer" {
-  ami                         = "${var.packer-build-terra-example-ami}"
+resource "aws_launch_template" "terra-packer" {
+  image_id                    = "${var.packer-build-terra-example-ami}"
   instance_type               = "t2.micro"
-  security_groups             = ["${aws_security_group.terra-packer-sg.name}"]
-  associate_public_ip_address = true
+  vpc_security_group_ids      = ["${aws_security_group.terra-packer-sg.id}"]
   key_name                    = "${aws_key_pair.terraform-packer-auto.key_name}"
 
   connection {
@@ -69,26 +68,67 @@ resource "aws_instance" "terra-packer" {
     private_key = "${file("private/terraform-packer-example.pem")}"
   }
 
-  provisioner "file" {
-    source = "private/credentials"
-    destination = "/home/ubuntu/.aws/credentials"
+  network_interfaces {
+    associate_public_ip_address = true
   }
 
-  provisioner "file" {
-    source = "private/config"
-    destination = "/home/ubuntu/.aws/config"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo systemctl stop gunicorn.service",
-      "sudo systemctl stop gunicorn.socket",
-      "sudo systemctl start gunicorn.socket",
-      "sudo systemctl start gunicorn.socket"
-    ]
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-output "terra-packer_public_ip" {
-  value = "${aws_instance.terra-packer.public_ip}"
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_autoscaling_group" "terra-packer-scaler" {
+  name              = "terra-scaling"
+  max_size          = 5
+  min_size          = 2
+  availability_zones = ["${data.aws_availability_zones.available.names}"]
+  vpc_zone_identifier = ["${aws_vpc.main.id}"]
+
+  launch_template = {
+    name = "${aws_launch_template.terra-packer.name}"
+  }
+
+  load_balancers = ["${aws_elb.terra-elb.name}"]
+  health_check_type = "ELB"
+
+  tag {
+    key = "Name"
+    value = "terraform-asg"
+    propagate_at_launch = true
+  }
+}
+
+data "aws_availability_zones" "available" {}
+
+resource "aws_elb" "terra-elb" {
+  name = "terra-elb"
+  security_groups = ["${aws_security_group.terra-packer-sg.id}"]
+
+  availability_zones = ["${data.aws_availability_zones.available.names}"]
+
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+    timeout = 3
+    interval = 30
+    target = "HTTP:80/"
+  }
+
+  listener {
+    lb_port = 80
+    lb_protocol = "http"
+    instance_port = "80"
+    instance_protocol = "http"
+  }
+}
+
+output "elb_dns_name" {
+  value = "${aws_elb.terra-elb.dns_name}"
+}
+output "instance_ips" {
+  value = ["${aws_elb.terra-elb.instances}"]
 }
