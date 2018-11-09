@@ -62,7 +62,7 @@ resource "aws_instance" "terra-packer" {
   instance_type               = "t2.micro"
   security_groups             = ["${aws_security_group.terra-packer-sg.name}"]
   associate_public_ip_address = true
-  key_name = "${aws_key_pair.terraform-packer-auto.key_name}"
+  key_name                    = "${aws_key_pair.terraform-packer-auto.key_name}"
 
   connection {
     user = "ubuntu"
@@ -77,6 +77,15 @@ resource "aws_instance" "terra-packer" {
   provisioner "file" {
     source = "private/config"
     destination = "/home/ubuntu/.aws/config"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo systemctl stop gunicorn.service",
+      "sudo systemctl stop gunicorn.socket",
+      "sudo systemctl start gunicorn.socket",
+      "sudo systemctl start gunicorn.socket"
+    ]
   }
 }
 

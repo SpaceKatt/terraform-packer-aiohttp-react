@@ -11,7 +11,8 @@ mkdir /etc/tmpfiles.d
 mkdir /etc/systemd/system
 mkdir /home/ubuntu/.aws
 
-sudo echo "AWS_PORFILE=default" >> /home/ubuntu/.env
+sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.env
+sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.bashrc
 
 sudo python3 -m pip install gunicorn
 sudo python3 -m pip install aiodns
