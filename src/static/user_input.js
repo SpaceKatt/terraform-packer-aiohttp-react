@@ -7,7 +7,7 @@ const ResultsRow = props => {
       if (props.results[props.attributes[i]]) {
         row.push(<td>{props.results[props.attributes[i]]}</td>);
       } else {
-        row.push(<td>'None'</td>);
+        row.push(<td>N/A</td>);
       }
     }
 
@@ -119,6 +119,10 @@ class NameForm extends React.Component {
   }
 
   handleQuery(event) {
+    this.setState({
+      'queryResults': {}
+    });
+
     event.preventDefault();
     if (this.state.firstName == '' && this.state.lastName == '') {
       alert('Please specify either a first name or last name!');
@@ -133,7 +137,7 @@ class NameForm extends React.Component {
         this.setState({
           queryResults: resp.data.Items
         })
-        alert(resp.data);
+        alert('Query success!');
       })
       .catch(err => {
         alert('Query has no results! Remember, you need an EXACT match!');

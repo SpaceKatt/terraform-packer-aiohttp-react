@@ -7,7 +7,7 @@ import asyncio
 import boto3
 import json
 
-from boto3.dynamodb.conditions import Key, Attr
+from boto3.dynamodb.conditions import Key
 from aiohttp import web
 
 # built-in dependencies
@@ -22,7 +22,7 @@ from os import path
 s3 = boto3.resource('s3', region_name='us-west-2')
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 
-s3_client = boto3.client('s3')
+s3_client = boto3.client('s3', region_name='us-west-2')
 dynamodb_client = boto3.client('dynamodb')
 
 MY_BUCK = s3.Bucket('example-zzz-data-stoar')
@@ -79,13 +79,11 @@ async def query_data_handle(req):
     data = await req.json()
     first = None
     last = None
-    print(data)
     try:
         if 'firstName' in data:
             first = data['firstName']
         if 'lastName' in data:
             last = data['lastName']
-        print('{} {}'.format(first, last))
         data = query_data_dynamo(first, last)
     except Exception:
         traceback.print_exc()
