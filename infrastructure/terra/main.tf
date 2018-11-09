@@ -68,25 +68,31 @@ resource "aws_launch_template" "terra-packer" {
     private_key = "${file("private/terraform-packer-example.pem")}"
   }
 
-  network_interfaces {
-    associate_public_ip_address = true
-  }
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_default_subnet" "default_az1" {
+  availability_zone = "us-west-2a"
+}
+
+resource "aws_default_subnet" "default_az2" {
+  availability_zone = "us-west-2b"
+}
+
+resource "aws_default_subnet" "default_az3" {
+  availability_zone = "us-west-2c"
 }
 
 resource "aws_autoscaling_group" "terra-packer-scaler" {
   name              = "terra-scaling"
   max_size          = 5
   min_size          = 2
-  availability_zones = ["${data.aws_availability_zones.available.names}"]
-  vpc_zone_identifier = ["${aws_vpc.main.id}"]
+
+  vpc_zone_identifier = ["${aws_default_subnet.default_az1.id}"]
+
 
   launch_template = {
     name = "${aws_launch_template.terra-packer.name}"
@@ -129,6 +135,7 @@ resource "aws_elb" "terra-elb" {
 output "elb_dns_name" {
   value = "${aws_elb.terra-elb.dns_name}"
 }
+
 output "instance_ips" {
   value = ["${aws_elb.terra-elb.instances}"]
 }
