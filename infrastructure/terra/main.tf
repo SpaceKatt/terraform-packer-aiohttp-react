@@ -10,7 +10,7 @@ provider "aws" {
 
 resource "aws_key_pair" "terraform-packer-auto" {
     key_name = "terraform-packer-auto"
-    public_key = "${file("private/id_terra.pub")}"
+    public_key = "${file("../../private/id_terra.pub")}"
 }
 
 variable "packer-build-terra-example-ami" {}
@@ -65,9 +65,8 @@ resource "aws_launch_template" "terra-packer" {
 
   connection {
     user = "ubuntu"
-    private_key = "${file("private/terraform-packer-example.pem")}"
+    private_key = "${file("../../private/terraform-packer-example.pem")}"
   }
-
 
   lifecycle {
     create_before_destroy = true
