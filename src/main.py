@@ -1,13 +1,14 @@
 '''
 Runs the webserver.
 '''
+import db.dynamodb_client as d_cli
+
 # External dependencies
 import aiofiles
 import asyncio
 import boto3
 import json
 
-from boto3.dynamodb.conditions import Key
 from aiohttp import web
 
 # built-in dependencies
@@ -20,14 +21,14 @@ from os import path
 
 
 s3 = boto3.resource('s3', region_name='us-west-2')
-dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
-
 s3_client = boto3.client('s3', region_name='us-west-2')
-dynamodb_client = boto3.client('dynamodb')
+
 
 MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
-TABLE_NAME = 'Example_Data'
+
+
+TABLE_NAME = d_cli.TABLE_NAME
 
 
 @ROUTES.get('/')
@@ -84,7 +85,7 @@ async def query_data_handle(req):
             first = data['firstName']
         if 'lastName' in data:
             last = data['lastName']
-        data = query_data_dynamo(first, last)
+        data = d_cli.query_data_dynamo(first, last)
     except Exception:
         traceback.print_exc()
         return web.Response(status=500, body="ERROR")
@@ -93,30 +94,6 @@ async def query_data_handle(req):
         return web.Response(status=200, body=json.dumps({'Items': data}))
     else:
         return web.Response(status=404)
-
-
-def query_data_dynamo(first_name, last_name):
-    table = dynamodb.Table(TABLE_NAME)
-    if first_name and last_name:
-        scan = table.scan(
-            FilterExpression=Key('lastName').eq(last_name)
-                           & Key('firstName').eq(first_name),
-        )
-    elif first_name:
-        scan = table.scan(
-            FilterExpression=Key('firstName').eq(first_name)
-        )
-    elif last_name:
-        scan = table.scan(
-            FilterExpression=Key('lastName').eq(last_name)
-        )
-    else:
-        return None
-
-    if scan['Count']:
-        return scan['Items']
-    else:
-        return None
 
 
 @ROUTES.delete('/data')
@@ -132,7 +109,7 @@ async def clear_data_handle(req):
                     'Key': 'input.txt'
                 }]
             })
-        clear_data_dynamo()
+        d_cli.clear_data_dynamo()
     except Exception:
         traceback.print_exc()
         return web.Response(status=500, body="ERROR")
@@ -155,12 +132,7 @@ async def load_data_handle(req):
     # TODO: Don't hardcode this
     MY_BUCK = s3.Bucket('example-zzz-data-stoar')
     MY_BUCK.upload_fileobj(obj.get()["Body"], Key='input.txt')
-    existing_tables = dynamodb_client.list_tables()['TableNames']
-    if TABLE_NAME not in existing_tables:
-        create_table(TABLE_NAME)
 
-    waiter = dynamodb_client.get_waiter('table_exists')
-    waiter.wait(TableName=TABLE_NAME)
     buffer = io.BytesIO(obj.get()["Body"].read())
     try:
         got_text = GzipFile(None, 'rb', fileobj=buffer).read()
@@ -171,83 +143,9 @@ async def load_data_handle(req):
         traceback.print_exc()
         return web.Response(status=500, body="ERROR")
 
-    save_data_dynamo(got_text)
+    d_cli.save_data_dynamo(got_text)
 
     return web.Response(status=200)
-
-
-def clear_data_dynamo():
-    table = dynamodb.Table(TABLE_NAME)
-    scan = table.scan(
-        ProjectionExpression='#k, #s',
-        ExpressionAttributeNames={
-            '#k': 'lastName',
-            '#s': 'firstName'
-        }
-    )
-
-    with table.batch_writer() as batch:
-        for each in scan['Items']:
-            batch.delete_item(Key=each)
-
-
-def create_table(table_name):
-    waiter = dynamodb_client.get_waiter('table_not_exists')
-    waiter.wait(TableName=table_name)
-    print('>>> Creating table in dynamodb')
-    table = dynamodb.create_table(
-        TableName=table_name,
-        KeySchema=[
-            {
-                'AttributeName': 'lastName',
-                'KeyType': 'HASH'
-            }, {
-                'AttributeName': 'firstName',
-                'KeyType': 'RANGE'
-            }
-        ],
-        AttributeDefinitions=[
-            {
-                'AttributeName': 'lastName',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'firstName',
-                'AttributeType': 'S'
-            },
-
-        ],
-        ProvisionedThroughput={
-            'ReadCapacityUnits': 5,
-            'WriteCapacityUnits': 5
-        },
-        StreamSpecification={
-            'StreamEnabled': False
-        }
-    )
-
-
-def save_data_dynamo(data):
-    lines = data.decode('utf-8').split('\n')
-    table = dynamodb.Table(TABLE_NAME)
-
-    for line in lines:
-        tokens = line.strip().split(' ')
-        key_vals = {}
-        key_vals['lastName'] = tokens.pop(0)
-        key_vals['firstName'] = tokens.pop(0)
-
-        for token in tokens:
-            token = token.split('=')
-            if len(token) < 2:
-                continue
-
-            key = token[0]
-            value = token[1]
-
-            key_vals[key] = value
-
-        table.put_item(TableName='Example_Data', Item=key_vals)
 
 
 async def init_app():
