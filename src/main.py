@@ -1,7 +1,7 @@
 '''
 Runs the webserver.
 '''
-import db.dynamodb_client as d_cli
+import db.dynamo_client as d_cli
 
 # External dependencies
 import aiofiles
@@ -101,20 +101,7 @@ async def clear_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-
-    try:
-        # TODO: Don't hardcode this
-        MY_BUCK.delete_objects(Delete={
-                'Objects': [{
-                    'Key': 'input.txt'
-                }]
-            })
-        d_cli.clear_data_dynamo()
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
-
-    return web.Response(status=200)
+    return web.Response(status=200, body="Yayyy")
 
 
 @ROUTES.post('/data')
@@ -122,29 +109,6 @@ async def load_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    # TODO: Don't hardcode this
-    url = "https://s3-us-west-2.amazonaws.com/css490/input.txt"
-    _, bucket_name, key = urlparse(url).path.split('/', 2)
-    obj = s3.Object(
-              bucket_name=bucket_name,
-              key=key
-    )
-    # TODO: Don't hardcode this
-    MY_BUCK = s3.Bucket('example-zzz-data-stoar')
-    MY_BUCK.upload_fileobj(obj.get()["Body"], Key='input.txt')
-
-    buffer = io.BytesIO(obj.get()["Body"].read())
-    try:
-        got_text = GzipFile(None, 'rb', fileobj=buffer).read()
-    except OSError:
-        buffer.seek(0)
-        got_text = buffer.read()
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
-
-    d_cli.save_data_dynamo(got_text)
-
     return web.Response(status=200)
 
 
