@@ -29,6 +29,10 @@
         "destination": "/home/ubuntu/packer-terra-example"
     },{
         "type": "file",
+        "source": "../../dist",
+        "destination": "/home/ubuntu/static"
+    },{
+        "type": "file",
         "source": "../../log",
         "destination": "/home/ubuntu/log"
     },{
