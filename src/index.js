@@ -1,3 +1,7 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import axios from "axios";
+
 const ResultsRow = props => {
   const createRow = () => {
     var row = [];

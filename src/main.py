@@ -1,253 +1,183 @@
 '''
 Runs the webserver.
 '''
+# import db.dynamo_client as d_cli
+
 # External dependencies
 import aiofiles
 import asyncio
-import boto3
 import json
 
-from boto3.dynamodb.conditions import Key
+import aiohttp
 from aiohttp import web
 
 # built-in dependencies
 import traceback
-import io
+import os
 
 from gzip import GzipFile
 from urllib.parse import urlparse
 from os import path
 
 
-s3 = boto3.resource('s3', region_name='us-west-2')
-dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
+# s3 = boto3.resource('s3', region_name='us-west-2')
+# s3_client = boto3.client('s3', region_name='us-west-2')
 
-s3_client = boto3.client('s3', region_name='us-west-2')
-dynamodb_client = boto3.client('dynamodb')
 
-MY_BUCK = s3.Bucket('example-zzz-data-stoar')
+# MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
-TABLE_NAME = 'Example_Data'
 
 
-@ROUTES.get('/')
-async def root_handle(req):
+AUTH_CODE = os.environ['AUTH_SIMPLE_IDENT']
+IDENTITY_ENDPOINT = os.environ['IDENTITY_ENDPOINT']
+DATA_ENDPOINT = os.environ['DATA_ENDPOINT']
+
+
+# TABLE_NAME = d_cli.TABLE_NAME
+
+@ROUTES.post('/register')
+async def register_user_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
+    endpoint = 'http://{}/register'.format(IDENTITY_ENDPOINT)
+
     try:
-        file_path = path.join(path.dirname(path.abspath(__file__)),
-                              './static/root.html')
-        async with aiofiles.open(file_path, mode='r') as f:
-            content = await f.read()
-            return web.Response(
-                    body=content,
-                    headers={
-                        'Content-Type': 'text/html'
-                    },
-            )
-    except Exception:
-        return web.Response(status=500)
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                }) as resp:
+
+            return web.Response(status=resp.status)
 
 
-@ROUTES.get('/js/{file}')
-async def static_file_handle(req):
+@ROUTES.post('/authenticate')
+async def auth_user_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    file_path = req.match_info.get('file', None)
+    endpoint = 'http://{}/authenticate'.format(IDENTITY_ENDPOINT)
+
     try:
-        file_path = path.join(path.dirname(path.abspath(__file__)),
-                              './static/{}'.format(file_path))
-        async with aiofiles.open(file_path, mode='r') as f:
-            content = await f.read()
-            return web.Response(
-                    body=content,
-                    headers={
-                        'Content-Type': 'text/javascript'
-                    },
-            )
-    except Exception:
-        return web.Response(status=500)
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                }) as resp:
+
+            if resp.status != 200:
+                return web.Response(status=resp.status)
+
+            resp_data = await resp.json()
+
+            return web.json_response(resp_data)
 
 
-@ROUTES.post('/query')
-async def query_data_handle(req):
+
+@ROUTES.post('/fetch')
+async def fetch_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    data = await req.json()
-    first = None
-    last = None
-    try:
-        if 'firstName' in data:
-            first = data['firstName']
-        if 'lastName' in data:
-            last = data['lastName']
-        data = query_data_dynamo(first, last)
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
-
-    if data:
-        return web.Response(status=200, body=json.dumps({'Items': data}))
-    else:
-        return web.Response(status=404)
-
-
-def query_data_dynamo(first_name, last_name):
-    table = dynamodb.Table(TABLE_NAME)
-    if first_name and last_name:
-        scan = table.scan(
-            FilterExpression=Key('lastName').eq(last_name)
-                           & Key('firstName').eq(first_name),
-        )
-    elif first_name:
-        scan = table.scan(
-            FilterExpression=Key('firstName').eq(first_name)
-        )
-    elif last_name:
-        scan = table.scan(
-            FilterExpression=Key('lastName').eq(last_name)
-        )
-    else:
-        return None
-
-    if scan['Count']:
-        return scan['Items']
-    else:
-        return None
-
-
-@ROUTES.delete('/data')
-async def clear_data_handle(req):
-    '''
-    Tells the malcontent to go root themselves off our lawn.
-    '''
+    endpoint = 'http://{}/fetch'.format(DATA_ENDPOINT)
 
     try:
-        # TODO: Don't hardcode this
-        MY_BUCK.delete_objects(Delete={
-                'Objects': [{
-                    'Key': 'input.txt'
-                }]
-            })
-        clear_data_dynamo()
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
-    return web.Response(status=200)
+    try:
+        username = data['username']
+        passhash = data['passhash']
+        count = data['count']
+    except KeyError:
+        return web.Response(status=400)
+
+    try:
+        back = data['back']
+    except KeyError:
+        back = 0
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                "count": count,
+                                                "back": back
+                                                }) as resp:
+
+            if resp.status != 200:
+                return web.Response(status=resp.status)
+
+            resp_data = await resp.json()
+
+            return web.json_response(resp_data)
 
 
 @ROUTES.post('/data')
-async def load_data_handle(req):
+async def post_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    # TODO: Don't hardcode this
-    url = "https://s3-us-west-2.amazonaws.com/css490/input.txt"
-    _, bucket_name, key = urlparse(url).path.split('/', 2)
-    obj = s3.Object(
-              bucket_name=bucket_name,
-              key=key
-    )
-    # TODO: Don't hardcode this
-    MY_BUCK = s3.Bucket('example-zzz-data-stoar')
-    MY_BUCK.upload_fileobj(obj.get()["Body"], Key='input.txt')
-    existing_tables = dynamodb_client.list_tables()['TableNames']
-    if TABLE_NAME not in existing_tables:
-        create_table(TABLE_NAME)
+    endpoint = 'http://{}/data'.format(DATA_ENDPOINT)
 
-    waiter = dynamodb_client.get_waiter('table_exists')
-    waiter.wait(TableName=TABLE_NAME)
-    buffer = io.BytesIO(obj.get()["Body"].read())
     try:
-        got_text = GzipFile(None, 'rb', fileobj=buffer).read()
-    except OSError:
-        buffer.seek(0)
-        got_text = buffer.read()
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
-    save_data_dynamo(got_text)
+    try:
+        username = data['username']
+        passhash = data['passhash']
+        msg = data['msg']
+    except KeyError:
+        return web.Response(status=400)
 
-    return web.Response(status=200)
+    if username is False or passhash is False:
+        return web.Response(status=400)
 
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                "msg": msg
+                                                }) as resp:
 
-def clear_data_dynamo():
-    table = dynamodb.Table(TABLE_NAME)
-    scan = table.scan(
-        ProjectionExpression='#k, #s',
-        ExpressionAttributeNames={
-            '#k': 'lastName',
-            '#s': 'firstName'
-        }
-    )
-
-    with table.batch_writer() as batch:
-        for each in scan['Items']:
-            batch.delete_item(Key=each)
-
-
-def create_table(table_name):
-    waiter = dynamodb_client.get_waiter('table_not_exists')
-    waiter.wait(TableName=table_name)
-    print('>>> Creating table in dynamodb')
-    table = dynamodb.create_table(
-        TableName=table_name,
-        KeySchema=[
-            {
-                'AttributeName': 'lastName',
-                'KeyType': 'HASH'
-            }, {
-                'AttributeName': 'firstName',
-                'KeyType': 'RANGE'
-            }
-        ],
-        AttributeDefinitions=[
-            {
-                'AttributeName': 'lastName',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'firstName',
-                'AttributeType': 'S'
-            },
-
-        ],
-        ProvisionedThroughput={
-            'ReadCapacityUnits': 5,
-            'WriteCapacityUnits': 5
-        },
-        StreamSpecification={
-            'StreamEnabled': False
-        }
-    )
-
-
-def save_data_dynamo(data):
-    lines = data.decode('utf-8').split('\n')
-    table = dynamodb.Table(TABLE_NAME)
-
-    for line in lines:
-        tokens = line.strip().split(' ')
-        key_vals = {}
-        key_vals['lastName'] = tokens.pop(0)
-        key_vals['firstName'] = tokens.pop(0)
-
-        for token in tokens:
-            token = token.split('=')
-            if len(token) < 2:
-                continue
-
-            key = token[0]
-            value = token[1]
-
-            key_vals[key] = value
-
-        table.put_item(TableName='Example_Data', Item=key_vals)
+            return web.Response(status=resp.status)
 
 
 async def init_app():

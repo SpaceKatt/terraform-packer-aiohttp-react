@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 echo "Terraform Apply"
-cd terra
+
+cd ../terra
 
 terraform get 
 

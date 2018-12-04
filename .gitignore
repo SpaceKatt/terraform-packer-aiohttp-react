@@ -10,8 +10,14 @@
 # Log files
 logs/
 
+# Build files
+dist/
+
 # Any private files
 private/
+
+# dependencies
+node_modules/
 
 # Terraform state
 terraform.tfstate

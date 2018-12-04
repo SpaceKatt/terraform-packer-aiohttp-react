@@ -21,19 +21,27 @@
         "script": "packer_setup.sh"
     },{
         "type": "file",
-        "source": "./config/etc",
+        "source": "../config/etc",
         "destination": "/"
     },{
         "type": "file",
-        "source": "../src",
+        "source": "../../src",
         "destination": "/home/ubuntu/packer-terra-example"
     },{
         "type": "file",
-        "source": "terra/private/credentials",
+        "source": "../../dist",
+        "destination": "/home/ubuntu/static"
+    },{
+        "type": "file",
+        "source": "../../log",
+        "destination": "/home/ubuntu/log"
+    },{
+        "type": "file",
+        "source": "../../private/credentials",
         "destination": "/home/ubuntu/.aws/credentials"
     },{
         "type": "file",
-        "source": "terra/private/config",
+        "source": "../../private/config",
         "destination": "/home/ubuntu/.aws/config"
     },{
         "type": "shell",
