@@ -1,115 +1,183 @@
 '''
 Runs the webserver.
 '''
-import db.dynamo_client as d_cli
+# import db.dynamo_client as d_cli
 
 # External dependencies
 import aiofiles
 import asyncio
-import boto3
 import json
 
+import aiohttp
 from aiohttp import web
 
 # built-in dependencies
 import traceback
-import io
+import os
 
 from gzip import GzipFile
 from urllib.parse import urlparse
 from os import path
 
 
-s3 = boto3.resource('s3', region_name='us-west-2')
-s3_client = boto3.client('s3', region_name='us-west-2')
+# s3 = boto3.resource('s3', region_name='us-west-2')
+# s3_client = boto3.client('s3', region_name='us-west-2')
 
 
-MY_BUCK = s3.Bucket('example-zzz-data-stoar')
+# MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
 
 
-TABLE_NAME = d_cli.TABLE_NAME
+AUTH_CODE = os.environ['AUTH_SIMPLE_IDENT']
+IDENTITY_ENDPOINT = os.environ['IDENTITY_ENDPOINT']
+DATA_ENDPOINT = os.environ['DATA_ENDPOINT']
 
 
-@ROUTES.get('/')
-async def root_handle(req):
+# TABLE_NAME = d_cli.TABLE_NAME
+
+@ROUTES.post('/register')
+async def register_user_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
+    endpoint = 'http://{}/register'.format(IDENTITY_ENDPOINT)
+
     try:
-        file_path = path.join(path.dirname(path.abspath(__file__)),
-                              './static/root.html')
-        async with aiofiles.open(file_path, mode='r') as f:
-            content = await f.read()
-            return web.Response(
-                    body=content,
-                    headers={
-                        'Content-Type': 'text/html'
-                    },
-            )
-    except Exception:
-        return web.Response(status=500)
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
-
-@ROUTES.get('/js/{file}')
-async def static_file_handle(req):
-    '''
-    Tells the malcontent to go root themselves off our lawn.
-    '''
-    file_path = req.match_info.get('file', None)
     try:
-        file_path = path.join(path.dirname(path.abspath(__file__)),
-                              './static/{}'.format(file_path))
-        async with aiofiles.open(file_path, mode='r') as f:
-            content = await f.read()
-            return web.Response(
-                    body=content,
-                    headers={
-                        'Content-Type': 'text/javascript'
-                    },
-            )
-    except Exception:
-        return web.Response(status=500)
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                }) as resp:
+
+            return web.Response(status=resp.status)
 
 
-@ROUTES.post('/query')
-async def query_data_handle(req):
+@ROUTES.post('/authenticate')
+async def auth_user_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    data = await req.json()
-    first = None
-    last = None
+    endpoint = 'http://{}/authenticate'.format(IDENTITY_ENDPOINT)
+
     try:
-        if 'firstName' in data:
-            first = data['firstName']
-        if 'lastName' in data:
-            last = data['lastName']
-        data = d_cli.query_data_dynamo(first, last)
-    except Exception:
-        traceback.print_exc()
-        return web.Response(status=500, body="ERROR")
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
 
-    if data:
-        return web.Response(status=200, body=json.dumps({'Items': data}))
-    else:
-        return web.Response(status=404)
+    try:
+        username = data['username']
+        passhash = data['passhash']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                }) as resp:
+
+            if resp.status != 200:
+                return web.Response(status=resp.status)
+
+            resp_data = await resp.json()
+
+            return web.json_response(resp_data)
 
 
-@ROUTES.delete('/data')
-async def clear_data_handle(req):
+
+@ROUTES.post('/fetch')
+async def fetch_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    return web.Response(status=200, body="Yayyy")
+    endpoint = 'http://{}/fetch'.format(DATA_ENDPOINT)
+
+    try:
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+        count = data['count']
+    except KeyError:
+        return web.Response(status=400)
+
+    try:
+        back = data['back']
+    except KeyError:
+        back = 0
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                "count": count,
+                                                "back": back
+                                                }) as resp:
+
+            if resp.status != 200:
+                return web.Response(status=resp.status)
+
+            resp_data = await resp.json()
+
+            return web.json_response(resp_data)
 
 
 @ROUTES.post('/data')
-async def load_data_handle(req):
+async def post_data_handle(req):
     '''
     Tells the malcontent to go root themselves off our lawn.
     '''
-    return web.Response(status=200)
+    endpoint = 'http://{}/data'.format(DATA_ENDPOINT)
+
+    try:
+        data = await req.json()
+    except json.decoder.JSONDecodeError:
+        return web.Response(status=400)
+
+    try:
+        username = data['username']
+        passhash = data['passhash']
+        msg = data['msg']
+    except KeyError:
+        return web.Response(status=400)
+
+    if username is False or passhash is False:
+        return web.Response(status=400)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={
+                                                "username": username,
+                                                "passhash": passhash,
+                                                "auth_code": AUTH_CODE,
+                                                "msg": msg
+                                                }) as resp:
+
+            return web.Response(status=resp.status)
 
 
 async def init_app():
