@@ -1,145 +1,105 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+import sha256 from "sha256";
 
-const ResultsRow = props => {
-  const createRow = () => {
-    var row = [];
-
-    for (var i = 0; i < props.attributes.length; i++) {
-      console.log(props.attributes[i]);
-      if (props.results[props.attributes[i]]) {
-        row.push(<td>{props.results[props.attributes[i]]}</td>);
-      } else {
-        row.push(<td>N/A</td>);
-      }
-    }
-
-    return row;
-  };
-
-  return (
-    <tr>
-      {createRow()}
-    </tr>
-  );
-}
-
-const ResultsTable = props => {
-  const createTable = () => {
-
-    var table = [];
-    var attributes = [];
-    var attribute_names = ['id', 'lastName', 'firstName'];
-    var items = [];
-
-    for (var i = 0; i < props.results.length; i++) {
-      var item = props.results[i];
-      var attr_list = Object.keys(item);
-
-      for (var j = 0; j < attr_list.length; j++) {
-        var attr_name = attr_list[j];
-        var attr = item[attr_name];
-
-        if (!attribute_names.includes(attr_name)) {
-          attribute_names.push(attr_name);
-        }
-      }
-    }
-
-    for (var i = 0; i < attribute_names.length; i++) {
-      attributes.push(<th>{attribute_names[i]}</th>);
-    }
-
-    table.push(<thead><tr>{attributes}</tr></thead>);
-
-    for (var i = 0; i < props.results.length; i++) {
-      items.push(<ResultsRow attributes={attribute_names}
-                             results={props.results[i]}/>);
-    }
-
-    table.push(<tbody>{items}</tbody>);
-
-    return table;
-  }
-
-  if (!props.results || Object.getOwnPropertyNames(props.results).length < 1) {
-    return null;
-  }
-
-  return (
-    <table>
-        {createTable()}
-    </table>
-  );
-}
 
 class NameForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      firstName: '',
-      lastName: '',
-      queryResults: {}
+      username: '',
+      uid: '',
+      passhash: '',
+      signedIn: false,
+      posts: []
     };
 
-    this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
-    this.handleLastNameChange = this.handleLastNameChange.bind(this);
+    this.handleUsernameChange = this.handleUsernameChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+
     this.handleQuery = this.handleQuery.bind(this);
-    this.handleLoadData = this.handleLoadData.bind(this);
-    this.handleClearData = this.handleClearData.bind(this);
+    this.signIn = this.signIn.bind(this);
+
+    this.handleRegister = this.handleRegister.bind(this);
   }
 
-  handleFirstNameChange(event) {
-    this.setState({
-      firstName: event.target.value
-    });
-  }
+  signIn(event) {
+    event.preventDefault();
 
-  handleLastNameChange(event) {
-    this.setState({
-      lastName: event.target.value
-    });
-  }
-
-  handleLoadData(event) {
-    axios.post('/data')
-      .then(() => {
-        alert('Data loaded!');
+    // This is where you would call Firebase, an API etc...
+    // calling setState will re-render the entire app (efficiently!)
+    alert(this.state['username'] + this.state['passhash']);
+    axios.post('/authenticate', {
+      'username': this.state['username'],
+      'passhash': this.state['passhash']
+    })
+      .then(resp => {
+        this.setState({
+          uid: resp.data.uid,
+          signedIn: true
+        })
+        alert('Query success!');
       })
       .catch(err => {
-        alert('Error loading data!');
-        console.error(err);
+        alert('Query has no results! Remember, you need an EXACT match!');
       });
-    event.preventDefault();
   }
 
-  handleClearData(event) {
-    axios.delete('/data')
-      .then(() => {
-        alert('Data cleared!');
-      });
+  handleUsernameChange(event) {
     event.preventDefault();
+
+    this.setState({
+      username: event.target.value
+    });
+  }
+
+  handlePasswordChange(event) {
+    event.preventDefault();
+
+    this.setState({
+      passhash: sha256(event.target.value)
+    });
+  }
+
+  handleRegister(event) {
+    event.preventDefault();
+
+    console.log('registering');
+    // This is where you would call Firebase, an API etc...
+    // calling setState will re-render the entire app (efficiently!)
+    axios.post('/register', {
+      'username': this.state['username'],
+      'passhash': this.state['passhash']
+    })
+      .then(resp => {
+        alert('Registration success!');
+      })
+      .catch(err => {
+        alert(err);
+      });
   }
 
   handleQuery(event) {
+    event.preventDefault();
+
     this.setState({
       'queryResults': {}
     });
 
-    event.preventDefault();
     if (this.state.firstName == '' && this.state.lastName == '') {
       alert('Please specify either a first name or last name!');
       return;
     }
 
-    axios.post('/query', {
-      'firstName': this.state.firstName,
-      'lastName': this.state.lastName
+    axios.post('/data', {
+      'username': this.state.username,
+      'passhash': this.state.passhash,
+      'count': 10
     })
       .then(resp => {
         this.setState({
-          queryResults: resp.data.Items
+          posts: resp.data.results
         })
         alert('Query success!');
       })
@@ -151,29 +111,53 @@ class NameForm extends React.Component {
   render() {
     return (
       <div className="container">
-        <form onSubmit={this.handleLoadData}>
-          <input type="submit" value="Load Data"/>
-        </form>
-
-        <form onSubmit={this.handleClearData}>
-          <input type="submit" value="Clear Data"/>
-        </form>
-
-        <form onSubmit={this.handleQuery}>
-          <label>
-            First Name:
-            <input type="text" value={this.state.firstName} onChange={this.handleFirstNameChange} />
-          </label>
-          <label>
-            Last Name:
-            <input type="text" value={this.state.lastName} onChange={this.handleLastNameChange} />
-          </label>
-           <input type="submit" value="Query" />
-        </form>
-        
-        <ResultsTable results={this.state.queryResults} />
+        {
+          (this.state.signedIn) ?
+            <p>reeeee</p>
+          :
+          <div>
+            <InfoForm 
+              message="Enter Infffffformation"
+              handleUsernameChange={this.handleUsernameChange.bind(this)}
+              handlePasswordChange={this.handlePasswordChange.bind(this)}
+            />
+            <LoginForm 
+              header="Sign In"
+              onSignIn={this.signIn.bind(this)}
+              message="login"
+            />
+            <LoginForm 
+              header="Registration"
+              onSignIn={this.handleRegister.bind(this)}
+              message="register"
+            />
+          </div>
+        }
       </div>
     );
+  }
+}
+
+class InfoForm extends React.Component {
+  render() {
+    return (
+      <form>
+        <h3>{this.props.message}</h3>
+        <input type="text" ref="username" placeholder="enter you username" onChange={this.props.handleUsernameChange} />
+        <input type="password" ref="password" placeholder="enter password" onChange={this.props.handlePasswordChange} />
+      </form>
+    )
+  }
+}
+
+class LoginForm extends React.Component {
+  render() {
+    return (
+      <form onSubmit={this.props.onSignIn}>
+        <h3>{this.props.header}</h3>
+        <input type="submit" value={this.props.message} />
+      </form>
+    )
   }
 }
 
