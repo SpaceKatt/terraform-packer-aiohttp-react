@@ -4,7 +4,6 @@ Runs the webserver.
 # import db.dynamo_client as d_cli
 
 # External dependencies
-import aiofiles
 import asyncio
 import json
 
@@ -20,11 +19,6 @@ from urllib.parse import urlparse
 from os import path
 
 
-# s3 = boto3.resource('s3', region_name='us-west-2')
-# s3_client = boto3.client('s3', region_name='us-west-2')
-
-
-# MY_BUCK = s3.Bucket('example-zzz-data-stoar')
 ROUTES = web.RouteTableDef()
 
 
@@ -32,8 +26,6 @@ AUTH_CODE = os.environ['AUTH_SIMPLE_IDENT']
 IDENTITY_ENDPOINT = os.environ['IDENTITY_ENDPOINT']
 DATA_ENDPOINT = os.environ['DATA_ENDPOINT']
 
-
-# TABLE_NAME = d_cli.TABLE_NAME
 
 @ROUTES.post('/register')
 async def register_user_handle(req):
