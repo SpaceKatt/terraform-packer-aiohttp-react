@@ -51,7 +51,6 @@ class NameForm extends React.Component {
               'posts': resp.data.result
             });
             console.log(resp.data.result);
-            //this.setState(this.state);
           })
       })
       .catch(err => {
@@ -97,7 +96,25 @@ class NameForm extends React.Component {
 
   handleStoryPost(event) {
     event.preventDefault();
-    console.log('posting story');
+
+    console.log(this.state['textBox']);
+    axios.post('/data', {
+      'username': this.state['username'],
+      'msg': this.state['textBox'],
+      'passhash': this.state['passhash']
+    })
+      .then(resp => {
+        alert('Post success!');
+        this.handleQuery(event);
+        this.state['textBox'] = '';
+
+        var textAre = document.getElementById('text_div').getElementsByTagName('textarea')[0]; 
+        textAre.value = '';
+      })
+      .catch(err => {
+        alert('Error posting!');
+        console.error(err);
+      });
   }
 
   handleTextAreaChange(event) {
@@ -111,27 +128,18 @@ class NameForm extends React.Component {
   handleQuery(event) {
     event.preventDefault();
 
-    this.setState({
-      'queryResults': {}
-    });
+    // maybe clear posts here
 
-    if (this.state.firstName == '' && this.state.lastName == '') {
-      alert('Please specify either a first name or last name!');
-      return;
-    }
-
-    axios.post('/data', {
-      'username': this.state.username,
-      'passhash': this.state.passhash,
+    axios.post('/fetch', {
+      'username': this.state['username'],
+      'passhash': this.state['passhash'],
       'count': 10
     })
       .then(resp => {
         this.setState({
-          posts: resp.data.results
+          'posts': resp.data.result
         })
-        if (this.state['posts'] && this.state['posts'].length > 0) {
-          alert('Displaying fetched data!');
-        } else {
+        if (!this.state['posts'] || this.state['posts'].length < 1) {
           alert('No data matches query parameters...');
         }
       })
@@ -148,7 +156,7 @@ class NameForm extends React.Component {
           <div>
             <StoryInput
               adid="texy_boxy"
-              value={this.state['textBox']}
+              value=''
               handleChange={this.handleTextAreaChange.bind(this)}
               handleSubmit={this.handleStoryPost.bind(this)}
             />
@@ -231,11 +239,13 @@ class LoginForm extends React.Component {
 class StoryInput extends React.Component {
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit}>
-        <h3>Tell Your Story!</h3>
-          <textarea id={this.props.adid} placeholder={this.props.value} onChange={this.props.handleChange} cols={40} rows={4} maxLength="140" ></textarea>
-        <input type="submit" value="Submit" />
-      </form>
+      <div id="text_div">
+        <form onSubmit={this.props.handleSubmit}>
+          <h3>Tell Your Story!</h3>
+            <textarea id={this.props.adid} placeholder="Enter text here and press submit!" onChange={this.props.handleChange} cols={40} rows={4} maxLength="140" >{this.props.value}</textarea>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
     )
   }
 }
