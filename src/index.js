@@ -190,7 +190,12 @@ class NameForm extends React.Component {
               handleChange={this.handleTextAreaChange.bind(this)}
               handleSubmit={this.handleStoryPost.bind(this)}
             />
-              <ResultsTable messages={this.state['posts']} />
+
+            <br/>
+            <br/>
+            <br/>
+
+            <ResultsTable messages={this.state['posts']} />
               
           </div>
           :
@@ -219,11 +224,14 @@ const ResultsTable = props => {
     var table = [];
     var table_contents = [];
 
-    table_contents.push(<tr><th width="150" >Username</th><th width="500" >Story</th></tr>);
+    table_contents.push(<tr><th width="150">Username</th><th width="500">Story</th><th>Time Posted</th></tr>);
 
-    for (var message in props.messages) {
-      var obj = props.messages[message];
-      table_contents.push(<tr><td>{obj.nameuser}</td><td>{obj.msg}</td></tr>);
+    var num_msgs = props.messages.length;
+
+    for (var i = num_msgs - 1; i >= 0; i--) {
+      var obj = props.messages[i];
+      var time_msg = obj.created_on.replace('T', '\n').replace(/\..*$/g, '');
+      table_contents.push(<tr><td>{obj.nameuser}</td><td className="wrapword">{obj.msg}</td><td>{time_msg}</td></tr>);
     }
 
     table.push(<tbody> {table_contents} </tbody>)
@@ -272,7 +280,9 @@ class StoryInput extends React.Component {
       <div id="text_div">
         <form onSubmit={this.props.handleSubmit}>
           <h3>Tell Your Story!</h3>
-            <textarea id={this.props.adid} placeholder="Enter text here and press submit!" onChange={this.props.handleChange} cols={40} rows={4} maxLength="140" >{this.props.value}</textarea>
+            <textarea id={this.props.adid} placeholder="Enter text here and press submit!"
+                      onChange={this.props.handleChange} cols={40} rows={4}
+                      maxLength="140" >{this.props.value}</textarea>
           <input type="submit" value="Submit" />
         </form>
       </div>
