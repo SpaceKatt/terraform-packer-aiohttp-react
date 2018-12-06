@@ -48,9 +48,10 @@ class NameForm extends React.Component {
         })
           .then(resp => {
             this.setState({
-              'result': resp.result
+              'posts': resp.data.result
             });
             console.log(resp.data.result);
+            //this.setState(this.state);
           })
       })
       .catch(err => {
@@ -78,9 +79,6 @@ class NameForm extends React.Component {
   handleRegister(event) {
     event.preventDefault();
 
-    console.log('registering');
-    // This is where you would call Firebase, an API etc...
-    // calling setState will re-render the entire app (efficiently!)
     axios.post('/register', {
       'username': this.state['username'],
       'passhash': this.state['passhash']
@@ -131,10 +129,14 @@ class NameForm extends React.Component {
         this.setState({
           posts: resp.data.results
         })
-        alert('Query success!');
+        if (this.state['posts'] && this.state['posts'].length > 0) {
+          alert('Displaying fetched data!');
+        } else {
+          alert('No data matches query parameters...');
+        }
       })
       .catch(err => {
-        alert('Query has no results! Remember, you need an EXACT match!');
+        alert('Error fetching data');
       });
   }
 
@@ -150,6 +152,8 @@ class NameForm extends React.Component {
               handleChange={this.handleTextAreaChange.bind(this)}
               handleSubmit={this.handleStoryPost.bind(this)}
             />
+              <ResultsTable messages={this.state['posts']} />
+              
           </div>
           :
           <div>
@@ -170,6 +174,32 @@ class NameForm extends React.Component {
       </div>
     );
   }
+}
+
+const ResultsTable = props => {
+  const createTable = () => {
+    var table = [];
+    var table_contents = [];
+
+    table_contents.push(<tr><th width="150" >Username</th><th width="500" >Story</th></tr>);
+
+    for (var message in props.messages) {
+      var obj = props.messages[message];
+      table_contents.push(<tr><td>{obj.nameuser}</td><td>{obj.msg}</td></tr>);
+    }
+
+    table.push(<tbody> {table_contents} </tbody>)
+
+    return table;
+  }
+
+  return (
+    <div>
+      <table>
+        {createTable()}
+      </table>
+    </div>
+  )
 }
 
 class InfoForm extends React.Component {
