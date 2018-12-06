@@ -3,6 +3,19 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import sha256 from "sha256";
 
+const isAlphaNumeric = str => {
+  var code, i, len;
+
+  for (i = 0, len = str.length; i < len; i++) {
+    code = str.charCodeAt(i);
+    if (!(code > 47 && code < 58) && // numeric (0-9)
+        !(code > 64 && code < 91) && // upper alpha (A-Z)
+        !(code > 96 && code < 123)) { // lower alpha (a-z)
+      return false;
+    }
+  }
+  return true;
+};
 
 class NameForm extends React.Component {
   constructor(props) {
@@ -28,8 +41,19 @@ class NameForm extends React.Component {
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
+
   signIn(event) {
     event.preventDefault();
+
+    if (!isAlphaNumeric(this.state['username'])) {
+      alert('Username must be alphanumeric!\nTry again!');
+      return false;
+    }
+
+    if (this.state['username'].length < 1) {
+      alert('Username must not be empty!');
+      return false;
+    }
 
     axios.post('/authenticate', {
       'username': this.state['username'],
@@ -40,18 +64,8 @@ class NameForm extends React.Component {
           uid: resp.data.uid,
           signedIn: true
         })
-        alert('Signin success!');
-        axios.post('/fetch', {
-          'username': this.state['username'],
-          'passhash': this.state['passhash'],
-          'count': 10
-        })
-          .then(resp => {
-            this.setState({
-              'posts': resp.data.result
-            });
-            console.log(resp.data.result);
-          })
+
+        this.handleQuery(event);
       })
       .catch(err => {
         alert('NOT AUTHORIZED! Username or password was wrong');
@@ -78,6 +92,16 @@ class NameForm extends React.Component {
   handleRegister(event) {
     event.preventDefault();
 
+    if (!isAlphaNumeric(this.state['username'])) {
+      alert('Username must be alphanumeric!\nTry again!');
+      return false;
+    }
+
+    if (this.state['username'].length < 1) {
+      alert('Username must not be empty!');
+      return false;
+    }
+
     axios.post('/register', {
       'username': this.state['username'],
       'passhash': this.state['passhash']
@@ -87,6 +111,7 @@ class NameForm extends React.Component {
           signedIn: true
         })
         alert('Registration success!');
+        this.handleQuery(event);
       })
       .catch(err => {
         alert('Username taken!');
@@ -96,6 +121,11 @@ class NameForm extends React.Component {
 
   handleStoryPost(event) {
     event.preventDefault();
+
+    if (this.state['textBox'].length < 1) {
+      alert('Story must not be empty!');
+      return false;
+    }
 
     console.log(this.state['textBox']);
     axios.post('/data', {
@@ -175,7 +205,7 @@ class NameForm extends React.Component {
             <LoginForm 
               header="Registration"
               onSignIn={this.handleRegister.bind(this)}
-              message="register"
+              message="Register"
             />
           </div>
         }
@@ -216,9 +246,9 @@ class InfoForm extends React.Component {
       <form onSubmit={this.props.onSignIn}>
         <h3>{this.props.message}</h3>
         <input type="text" ref="username" 
-               placeholder="enter you username" onChange={this.props.handleUsernameChange} />
+               placeholder="Enter you username" onChange={this.props.handleUsernameChange} />
         <input type="password" ref="password"
-               placeholder="enter password" onChange={this.props.handlePasswordChange} />
+               placeholder="Enter password" onChange={this.props.handlePasswordChange} />
         <input type="submit" value={this.props.message} />
       </form>
     )

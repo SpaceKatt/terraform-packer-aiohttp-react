@@ -3,7 +3,7 @@
     "variables": {
         "aws_profile": "{{ env `AWS_PROFILE` }}",
         "ssh_name": "ubuntu",
-        "ssh_key_path": "{{ env `SSH_KEY_PATH` }}",
+        "ssh_key_path": "",
         "aws_region": "us-west-2"
     },
     "builders": [{
@@ -29,6 +29,10 @@
         "destination": "/home/ubuntu/packer-terra-example"
     },{
         "type": "file",
+        "source": "../../.env",
+        "destination": "/home/ubuntu/.env"
+    },{
+        "type": "file",
         "source": "../../dist",
         "destination": "/home/ubuntu/static"
     },{
@@ -46,6 +50,7 @@
     },{
         "type": "shell",
         "inline": [
+            "sed 's/export\\s//g' .env > .envy && cp .envy .env",
             "rm /etc/nginx/sites-enabled/default",
 
             "sudo systemctl enable gunicorn.socket",

@@ -48,6 +48,9 @@ async def register_user_handle(req):
     if username is False or passhash is False:
         return web.Response(status=400)
 
+    if not str.isalnum(username):
+        return web.Response(status=400)
+
     async with aiohttp.ClientSession() as session:
         async with session.post(endpoint, json={
                                                 "username": username,

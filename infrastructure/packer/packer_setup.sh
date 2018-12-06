@@ -1,17 +1,26 @@
 #/usr/bin/env bash
 
+sudo add-apt-repository main
+sudo add-apt-repository universe
+sudo add-apt-repository multiverse
+sudo add-apt-repository restricted
+
 sudo apt-get update
-sudo apt-get install -y build-essential \
+sudo apt-get update
+sudo apt-get install -y  \
                         nginx \
                         python3 \
+
+sudo apt-get update
+sudo apt-get install -y  \
                         python3-pip
+
 #yes 1 | sudo apt-get upgrade -y
 
 mkdir /etc/tmpfiles.d
 mkdir /etc/systemd/system
 mkdir /home/ubuntu/.aws
 
-sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.env
 sudo echo "AWS_PROFILE=default" >> /home/ubuntu/.bashrc
 
 sudo python3 -m pip install gunicorn
