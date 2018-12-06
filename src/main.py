@@ -94,7 +94,6 @@ async def auth_user_handle(req):
             return web.json_response(resp_data)
 
 
-
 @ROUTES.post('/fetch')
 async def fetch_data_handle(req):
     '''

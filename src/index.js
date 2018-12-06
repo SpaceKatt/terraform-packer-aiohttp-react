@@ -12,6 +12,7 @@ class NameForm extends React.Component {
       uid: '',
       passhash: '',
       signedIn: false,
+      testBox: '',
       posts: []
     };
 
@@ -22,14 +23,14 @@ class NameForm extends React.Component {
     this.signIn = this.signIn.bind(this);
 
     this.handleRegister = this.handleRegister.bind(this);
+
+    this.handleStoryPost = this.handleStoryPost.bind(this);
+    this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
   signIn(event) {
     event.preventDefault();
 
-    // This is where you would call Firebase, an API etc...
-    // calling setState will re-render the entire app (efficiently!)
-    alert(this.state['username'] + this.state['passhash']);
     axios.post('/authenticate', {
       'username': this.state['username'],
       'passhash': this.state['passhash']
@@ -39,11 +40,23 @@ class NameForm extends React.Component {
           uid: resp.data.uid,
           signedIn: true
         })
-        alert('Query success!');
+        alert('Signin success!');
+        axios.post('/fetch', {
+          'username': this.state['username'],
+          'passhash': this.state['passhash'],
+          'count': 10
+        })
+          .then(resp => {
+            this.setState({
+              'result': resp.result
+            });
+            console.log(resp.data.result);
+          })
       })
       .catch(err => {
-        alert('Query has no results! Remember, you need an EXACT match!');
+        alert('NOT AUTHORIZED! Username or password was wrong');
       });
+    return false;
   }
 
   handleUsernameChange(event) {
@@ -73,11 +86,28 @@ class NameForm extends React.Component {
       'passhash': this.state['passhash']
     })
       .then(resp => {
+        this.setState({
+          signedIn: true
+        })
         alert('Registration success!');
       })
       .catch(err => {
-        alert(err);
+        alert('Username taken!');
+        console.error(err);
       });
+  }
+
+  handleStoryPost(event) {
+    event.preventDefault();
+    console.log('posting story');
+  }
+
+  handleTextAreaChange(event) {
+    event.preventDefault();
+    event.target.value = event.target.value.replace('\n', '');
+    this.setState({
+      textBox: event.target.value
+    });
   }
 
   handleQuery(event) {
@@ -113,18 +143,22 @@ class NameForm extends React.Component {
       <div className="container">
         {
           (this.state.signedIn) ?
-            <p>reeeee</p>
+          <div>
+            <StoryInput
+              adid="texy_boxy"
+              value={this.state['textBox']}
+              handleChange={this.handleTextAreaChange.bind(this)}
+              handleSubmit={this.handleStoryPost.bind(this)}
+            />
+          </div>
           :
           <div>
             <InfoForm 
-              message="Enter Infffffformation"
+              header="Enter Information"
               handleUsernameChange={this.handleUsernameChange.bind(this)}
               handlePasswordChange={this.handlePasswordChange.bind(this)}
-            />
-            <LoginForm 
-              header="Sign In"
+              message="Login"
               onSignIn={this.signIn.bind(this)}
-              message="login"
             />
             <LoginForm 
               header="Registration"
@@ -141,10 +175,13 @@ class NameForm extends React.Component {
 class InfoForm extends React.Component {
   render() {
     return (
-      <form>
+      <form onSubmit={this.props.onSignIn}>
         <h3>{this.props.message}</h3>
-        <input type="text" ref="username" placeholder="enter you username" onChange={this.props.handleUsernameChange} />
-        <input type="password" ref="password" placeholder="enter password" onChange={this.props.handlePasswordChange} />
+        <input type="text" ref="username" 
+               placeholder="enter you username" onChange={this.props.handleUsernameChange} />
+        <input type="password" ref="password"
+               placeholder="enter password" onChange={this.props.handlePasswordChange} />
+        <input type="submit" value={this.props.message} />
       </form>
     )
   }
@@ -156,6 +193,18 @@ class LoginForm extends React.Component {
       <form onSubmit={this.props.onSignIn}>
         <h3>{this.props.header}</h3>
         <input type="submit" value={this.props.message} />
+      </form>
+    )
+  }
+}
+
+class StoryInput extends React.Component {
+  render() {
+    return (
+      <form onSubmit={this.props.handleSubmit}>
+        <h3>Tell Your Story!</h3>
+          <textarea id={this.props.adid} placeholder={this.props.value} onChange={this.props.handleChange} cols={40} rows={4} maxLength="140" ></textarea>
+        <input type="submit" value="Submit" />
       </form>
     )
   }
