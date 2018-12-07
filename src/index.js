@@ -1,3 +1,5 @@
+'use strict';
+
 import React from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
@@ -20,6 +22,7 @@ const isAlphaNumeric = str => {
 class NameForm extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       username: '',
       uid: '',
@@ -33,6 +36,7 @@ class NameForm extends React.Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
 
     this.handleQuery = this.handleQuery.bind(this);
+    this.handleRefresh = this.handleRefresh.bind(this);
     this.signIn = this.signIn.bind(this);
 
     this.handleRegister = this.handleRegister.bind(this);
@@ -63,7 +67,7 @@ class NameForm extends React.Component {
         this.setState({
           uid: resp.data.uid,
           signedIn: true
-        })
+        });
 
         this.handleQuery(event);
       })
@@ -134,7 +138,6 @@ class NameForm extends React.Component {
       'passhash': this.state['passhash']
     })
       .then(resp => {
-        alert('Post success!');
         this.handleQuery(event);
         this.state['textBox'] = '';
 
@@ -158,8 +161,6 @@ class NameForm extends React.Component {
   handleQuery(event) {
     event.preventDefault();
 
-    // maybe clear posts here
-
     axios.post('/fetch', {
       'username': this.state['username'],
       'passhash': this.state['passhash'],
@@ -178,9 +179,19 @@ class NameForm extends React.Component {
       });
   }
 
+  handleRefresh(event) {
+    event.preventDefault();
+    handleQuery(event);
+  }
+
   render() {
     return (
       <div className="container">
+        <h1>Bürd</h1>
+        <h2>The Best Social Media Platform, Ever</h2>
+        <h5>Relegating Facebook to the Dust Bins of History, since 2018</h5>
+        <hr/>
+        
         {
           (this.state.signedIn) ?
           <div>
@@ -195,6 +206,9 @@ class NameForm extends React.Component {
             <br/>
             <br/>
 
+            <form onSubmit={this.handleQuery}>
+              <input type="submit" value="Refresh Stories! Get the latest!" />
+            </form>
             <ResultsTable messages={this.state['posts']} />
               
           </div>
@@ -234,7 +248,7 @@ const ResultsTable = props => {
       table_contents.push(<tr><td>{obj.nameuser}</td><td className="wrapword">{obj.msg}</td><td>{time_msg}</td></tr>);
     }
 
-    table.push(<tbody> {table_contents} </tbody>)
+    table.push(<tbody> {table_contents} </tbody>);
 
     return table;
   }
