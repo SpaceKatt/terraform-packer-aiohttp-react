@@ -210,7 +210,6 @@ class NameForm extends React.Component {
 
             <StoryInput
               adid="texy_boxy"
-              value=''
               handleChange={this.handleTextAreaChange}
               handleSubmit={this.handleStoryPost}
             />
@@ -261,7 +260,7 @@ const ResultsTable = props => {
       table_contents.push(<tr><td>{obj.nameuser}</td><td className="wrapword">{obj.msg}</td><td>{time_msg}</td></tr>);
     }
 
-    table.push(<tbody> {table_contents} </tbody>);
+    table.push(<tbody>{table_contents}</tbody>);
 
     return table;
   }
@@ -290,31 +289,27 @@ class InfoForm extends React.Component {
   }
 }
 
-class LoginForm extends React.Component {
-  render() {
-    return (
-      <form onSubmit={this.props.onSignIn}>
-        <h3>{this.props.header}</h3>
-        <input type="submit" value={this.props.message} />
-      </form>
-    )
-  }
+const LoginForm = props => {
+  return (
+    <form onSubmit={props.onSignIn}>
+      <h3>{props.header}</h3>
+      <input type="submit" value={props.message} />
+    </form>
+  )
 }
 
-class StoryInput extends React.Component {
-  render() {
-    return (
-      <div id="text_div">
-        <form onSubmit={this.props.handleSubmit}>
-          <h3>Tell Your Story!</h3>
-            <textarea id={this.props.adid} placeholder="Enter text here and press submit!"
-                      onChange={this.props.handleChange} cols={40} rows={4}
-                      maxLength="140" >{this.props.value}</textarea>
-          <input type="submit" value="Submit" />
-        </form>
-      </div>
-    )
-  }
+const StoryInput = props => {
+  return (
+    <div id="text_div">
+      <form onSubmit={props.handleSubmit}>
+        <h3>Tell Your Story!</h3>
+          <textarea id={props.adid} placeholder="Enter text here and press submit!"
+                    onChange={props.handleChange} cols={40} rows={4}
+                    maxLength="140" ></textarea>
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+  )
 }
 
 const e = React.createElement;
