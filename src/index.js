@@ -28,7 +28,10 @@ class NameForm extends React.Component {
       uid: '',
       passhash: '',
       signedIn: false,
-      testBox: '',
+      textBox: '',
+      count: 10,
+      back: 0,
+      max_stories: 0,
       posts: []
     };
 
@@ -43,6 +46,22 @@ class NameForm extends React.Component {
 
     this.handleStoryPost = this.handleStoryPost.bind(this);
     this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
+  }
+
+  handleLogOut = (event) => {
+    event.preventDefault();
+
+    this.setState({
+      username: '',
+      uid: '',
+      passhash: '',
+      signedIn: false,
+      textBox: '',
+      count: 10,
+      back: 0,
+      max_stories: 0,
+      posts: []
+    });
   }
 
 
@@ -195,6 +214,12 @@ class NameForm extends React.Component {
         {
           (this.state.signedIn) ?
           <div>
+            <form onSubmit={this.handleLogOut}>
+              <input type="submit" value="Log Out" />
+            </form>
+
+            <br/>
+
             <StoryInput
               adid="texy_boxy"
               value=''
