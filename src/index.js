@@ -34,18 +34,6 @@ class NameForm extends React.Component {
       max_stories: 0,
       posts: []
     };
-
-    this.handleUsernameChange = this.handleUsernameChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
-
-    this.handleQuery = this.handleQuery.bind(this);
-    this.handleRefresh = this.handleRefresh.bind(this);
-    this.signIn = this.signIn.bind(this);
-
-    this.handleRegister = this.handleRegister.bind(this);
-
-    this.handleStoryPost = this.handleStoryPost.bind(this);
-    this.handleTextAreaChange = this.handleTextAreaChange.bind(this);
   }
 
   handleLogOut = (event) => {
@@ -65,7 +53,7 @@ class NameForm extends React.Component {
   }
 
 
-  signIn(event) {
+  signIn = (event) => {
     event.preventDefault();
 
     if (!isAlphaNumeric(this.state['username'])) {
@@ -96,7 +84,7 @@ class NameForm extends React.Component {
     return false;
   }
 
-  handleUsernameChange(event) {
+  handleUsernameChange = (event) => {
     event.preventDefault();
 
     this.setState({
@@ -104,7 +92,7 @@ class NameForm extends React.Component {
     });
   }
 
-  handlePasswordChange(event) {
+  handlePasswordChange = (event) => {
     event.preventDefault();
 
     this.setState({
@@ -112,7 +100,7 @@ class NameForm extends React.Component {
     });
   }
 
-  handleRegister(event) {
+  handleRegister = (event) => {
     event.preventDefault();
 
     if (!isAlphaNumeric(this.state['username'])) {
@@ -142,7 +130,7 @@ class NameForm extends React.Component {
       });
   }
 
-  handleStoryPost(event) {
+  handleStoryPost = (event) => {
     event.preventDefault();
 
     if (this.state['textBox'].length < 1) {
@@ -169,7 +157,7 @@ class NameForm extends React.Component {
       });
   }
 
-  handleTextAreaChange(event) {
+  handleTextAreaChange = (event) => {
     event.preventDefault();
     event.target.value = event.target.value.replace('\n', '');
     this.setState({
@@ -177,7 +165,7 @@ class NameForm extends React.Component {
     });
   }
 
-  handleQuery(event) {
+  handleQuery = (event) => {
     event.preventDefault();
 
     axios.post('/fetch', {
@@ -198,7 +186,7 @@ class NameForm extends React.Component {
       });
   }
 
-  handleRefresh(event) {
+  handleRefresh = (event) => {
     event.preventDefault();
     handleQuery(event);
   }
@@ -223,8 +211,8 @@ class NameForm extends React.Component {
             <StoryInput
               adid="texy_boxy"
               value=''
-              handleChange={this.handleTextAreaChange.bind(this)}
-              handleSubmit={this.handleStoryPost.bind(this)}
+              handleChange={this.handleTextAreaChange}
+              handleSubmit={this.handleStoryPost}
             />
 
             <br/>
@@ -241,14 +229,14 @@ class NameForm extends React.Component {
           <div>
             <InfoForm 
               header="Enter Information"
-              handleUsernameChange={this.handleUsernameChange.bind(this)}
-              handlePasswordChange={this.handlePasswordChange.bind(this)}
+              handleUsernameChange={this.handleUsernameChange}
+              handlePasswordChange={this.handlePasswordChange}
               message="Login"
-              onSignIn={this.signIn.bind(this)}
+              onSignIn={this.signIn}
             />
             <LoginForm 
               header="Registration"
-              onSignIn={this.handleRegister.bind(this)}
+              onSignIn={this.handleRegister}
               message="Register"
             />
           </div>
