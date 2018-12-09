@@ -133,12 +133,15 @@ class NameForm extends React.Component {
   handleStoryPost = (event) => {
     event.preventDefault();
 
-    if (this.state['textBox'].length < 1) {
+    this.setState({
+      textBox: this.state['textBox'].trim()
+    });
+
+    if (this.state['textBox'].trim().length < 1) {
       alert('Story must not be empty!');
       return false;
     }
 
-    console.log(this.state['textBox']);
     axios.post('/data', {
       'username': this.state['username'],
       'msg': this.state['textBox'],
@@ -171,11 +174,13 @@ class NameForm extends React.Component {
     axios.post('/fetch', {
       'username': this.state['username'],
       'passhash': this.state['passhash'],
-      'count': 10
+      'count': this.state['count'],
+      'back': this.state['back']
     })
       .then(resp => {
         this.setState({
-          'posts': resp.data.result
+          'posts': resp.data.result,
+          'max_stories': resp.data.max_post
         })
         if (!this.state['posts'] || this.state['posts'].length < 1) {
           alert('No data matches query parameters...');
@@ -189,6 +194,40 @@ class NameForm extends React.Component {
   handleRefresh = (event) => {
     event.preventDefault();
     handleQuery(event);
+  }
+
+  handleCountChange = event => {
+    event.preventDefault();
+
+    this.setState({
+      count: event.target.value
+    }, () => {
+      this.handleQuery(event);
+    });
+  }
+
+  handleGetOlder = event => {
+    event.preventDefault();
+    
+    var new_back = this.state['back'] + this.state['count'];
+
+    this.setState({
+      back: new_back
+    }, () => {
+      this.handleQuery(event);
+    });
+  }
+
+  handleGetNewer = event => {
+    event.preventDefault();
+    
+    var new_back = this.state['back'] - this.state['count'];
+
+    this.setState({
+      back: new_back
+    }, () => {
+      this.handleQuery(event);
+    });
   }
 
   render() {
@@ -206,7 +245,7 @@ class NameForm extends React.Component {
               <input type="submit" value="Log Out" />
             </form>
 
-            <br/>
+            <hr/>
 
             <StoryInput
               adid="texy_boxy"
@@ -214,13 +253,22 @@ class NameForm extends React.Component {
               handleSubmit={this.handleStoryPost}
             />
 
-            <br/>
-            <br/>
-            <br/>
+            <hr/>
 
+            <h2>View Your Friends&#39; Stories!</h2>
             <form onSubmit={this.handleQuery}>
               <input type="submit" value="Refresh Stories! Get the latest!" />
             </form>
+
+            <NavigationPane
+              handleCountChange={this.handleCountChange}
+              handleOld={this.handleGetOlder}
+              handleNew={this.handleGetNewer}
+              county={this.state['count']}
+              max_posts={this.state['max_stories']}
+              back={this.state['back']}
+            />
+
             <ResultsTable messages={this.state['posts']} />
               
           </div>
@@ -289,6 +337,39 @@ class InfoForm extends React.Component {
   }
 }
 
+const NavigationPane = props => {
+  return (
+    <div>
+      <div className="inline">
+        <label htmlFor="numPosts"># Posts Displayed: </label>
+        <select id="numPosts" onChange={props.handleCountChange}>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+
+      <div className="inline">
+        <form onSubmit={props.handleOld}>
+          <input type="submit" value={`Get next ${props.county}`} />
+        </form>
+      </div>
+
+      <div className="inline">
+        <form onSubmit={props.handleNew}>
+          <input type="submit" value={`Get previous ${props.county}`} />
+        </form>
+      </div>
+
+      <div className="inline">
+        <i>{`Displaying ${props.max_posts - props.back}-${props.max_posts - props.back - props.county > 0 ? props.max_posts - props.back - props.county : 0} out of ${props.max_posts}`}</i>
+      </div>
+    </div>
+  )
+}
+
 const LoginForm = props => {
   return (
     <form onSubmit={props.onSignIn}>
@@ -300,12 +381,12 @@ const LoginForm = props => {
 
 const StoryInput = props => {
   return (
-    <div id="text_div">
+    <div id="text_div" className="storyIn">
       <form onSubmit={props.handleSubmit}>
-        <h3>Tell Your Story!</h3>
+        <h2>Tell Your Story!</h2>
           <textarea id={props.adid} placeholder="Enter text here and press submit!"
                     onChange={props.handleChange} cols={40} rows={4}
-                    maxLength="140" ></textarea>
+                    maxLength="140" className="storyArea"></textarea>
         <input type="submit" value="Submit" />
       </form>
     </div>
