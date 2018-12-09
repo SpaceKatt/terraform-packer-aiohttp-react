@@ -200,7 +200,16 @@ class NameForm extends React.Component {
     event.preventDefault();
 
     this.setState({
-      count: event.target.value
+      count: event.target.value,
+      back: (() => {
+        var new_back = parseInt(event.target.value) + parseInt(this.state['back'])
+           > this.state['max_stories'] ?
+             parseInt(this.state['max_stories']) - parseInt(event.target.value)
+           :
+             this.state['back'];
+
+        return parseInt(new_back) > 0 ? new_back : 0;
+      })()
     }, () => {
       this.handleQuery(event);
     });
@@ -209,7 +218,12 @@ class NameForm extends React.Component {
   handleGetOlder = event => {
     event.preventDefault();
     
-    var new_back = this.state['back'] + this.state['count'];
+    var new_back = parseInt(this.state['back']) + parseInt(this.state['count']);
+
+    if (parseInt(new_back) + parseInt(this.state['count']) > parseInt(this.state['max_stories'])) {
+      new_back = parseInt(this.state['max_stories']) - parseInt(this.state['count']);
+      new_back = parseInt(new_back) < 0 ? 0 : new_back;
+    }
 
     this.setState({
       back: new_back
@@ -221,7 +235,11 @@ class NameForm extends React.Component {
   handleGetNewer = event => {
     event.preventDefault();
     
-    var new_back = this.state['back'] - this.state['count'];
+    var new_back = parseInt(this.state['back']) - parseInt(this.state['count']);
+
+    if (new_back < 0) {
+      new_back = 0;
+    }
 
     this.setState({
       back: new_back
@@ -348,23 +366,24 @@ const NavigationPane = props => {
           <option value="25">25</option>
           <option value="50">50</option>
           <option value="100">100</option>
+          <option value="250">250</option>
         </select>
       </div>
 
       <div className="inline">
         <form onSubmit={props.handleOld}>
-          <input type="submit" value={`Get next ${props.county}`} />
+          <input type="submit" value={`Get older ${props.county}`} />
         </form>
       </div>
 
       <div className="inline">
         <form onSubmit={props.handleNew}>
-          <input type="submit" value={`Get previous ${props.county}`} />
+          <input type="submit" value={`Get newer ${props.county}`} />
         </form>
       </div>
 
       <div className="inline">
-        <i>{`Displaying ${props.max_posts - props.back}-${props.max_posts - props.back - props.county > 0 ? props.max_posts - props.back - props.county : 0} out of ${props.max_posts}`}</i>
+        <i>{`Displaying ${props.max_posts - props.back - 1}-${props.max_posts - props.back - props.county > 0 ? props.max_posts - props.back - props.county : 1} out of ${props.max_posts - 1}`}</i>
       </div>
     </div>
   )
