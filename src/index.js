@@ -368,9 +368,9 @@ class InfoForm extends React.Component {
       <form onSubmit={this.props.onSignIn}>
         <h3>{this.props.message}</h3>
         <input type="text" ref="username" 
-               placeholder="Enter you username" onChange={this.props.handleUsernameChange} />
+               placeholder="Enter your username" onChange={this.props.handleUsernameChange} />
         <input type="password" ref="password"
-               placeholder="Enter password" onChange={this.props.handlePasswordChange} />
+               placeholder="Enter your password" onChange={this.props.handlePasswordChange} />
         <input type="submit" value={this.props.message} />
       </form>
     )

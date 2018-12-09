@@ -4,6 +4,10 @@ variable "region" {
   default = "us-west-2"
 }
 
+variable "cert_arn" {
+  type = "string"
+}
+
 provider "aws" {
   region = "${var.region}"
 }
@@ -115,10 +119,11 @@ resource "aws_elb" "terra-elb" {
   }
 
   listener {
-    lb_port = 80
-    lb_protocol = "http"
+    lb_port = 443
+    lb_protocol = "https"
     instance_port = "80"
     instance_protocol = "http"
+    ssl_certificate_id = "${var.cert_arn}"
   }
 }
 

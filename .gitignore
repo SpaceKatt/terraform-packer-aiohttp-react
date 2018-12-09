@@ -22,6 +22,7 @@ node_modules/
 # Terraform state
 terraform.tfstate
 packer_build_vars.tfvars
+variables.tfvars
 .terraform.tfstate.lock.info
 .terraform/
 terraform.tfstate.backup
