@@ -66,6 +66,11 @@ class NameForm extends React.Component {
       return false;
     }
 
+    if (this.state['username'].length > 18) {
+      alert('Username must not be more than 18 chars!');
+      return false;
+    }
+
     axios.post('/authenticate', {
       'username': this.state['username'],
       'passhash': this.state['passhash']
@@ -88,7 +93,7 @@ class NameForm extends React.Component {
     event.preventDefault();
 
     this.setState({
-      username: event.target.value
+      username: event.target.value.trim()
     });
   }
 
@@ -96,7 +101,7 @@ class NameForm extends React.Component {
     event.preventDefault();
 
     this.setState({
-      passhash: sha256(event.target.value)
+      passhash: sha256(event.target.value.trim())
     });
   }
 
@@ -110,6 +115,11 @@ class NameForm extends React.Component {
 
     if (this.state['username'].length < 1) {
       alert('Username must not be empty!');
+      return false;
+    }
+
+    if (this.state['username'].length > 18) {
+      alert('Username must not be more than 18 chars!');
       return false;
     }
 
@@ -178,8 +188,20 @@ class NameForm extends React.Component {
       'back': this.state['back']
     })
       .then(resp => {
+        const compare = (a, b) => {
+          if (a.did < b.did)
+            return -1;
+          if (a.did > b.did)
+            return 1;
+          return 0;
+        }
+
+        var sorted_posts = resp.data.result.sort(compare);
+        console.log(resp.data.result);
+        console.log(sorted_posts);
+
         this.setState({
-          'posts': resp.data.result,
+          'posts': sorted_posts,
           'max_stories': resp.data.max_post
         })
         if (!this.state['posts'] || this.state['posts'].length < 1) {
@@ -253,7 +275,7 @@ class NameForm extends React.Component {
       <div className="container">
         <h1>Bürd</h1>
         <h2>The Best Social Media Platform, Ever</h2>
-        <h5>Relegating Facebook to the Dust Bins of History, since 2018</h5>
+        <h5>Relegating Facebook to the Dustbins of History, since 2018</h5>
         <hr/>
         
         {
